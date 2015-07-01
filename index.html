@@ -1,0 +1,1155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+              "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="robots" content="noindex" />
+  <title>RDBAdmin</title>
+  <link type="text/css" href="css/layout.css" rel="stylesheet"/>
+  <style type="text/css" id="usercss">@import url("css/rdbhost.css");</style>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"> </script>
+  <!-- script src="https://www.rdbhost.com/js/jquery-migrate-1.1.1.js"></script -->
+  <script type="text/javascript" src="https://www.rdbhost.com/js/underscore-min.js"> </script>
+  <script type="text/javascript" src="https://www.rdbhost.com/js/underscore.string.min.js"> </script>
+  <script type="text/javascript" src="sammy/sammy.js" charset="utf-8"> </script>
+  <script type="text/javascript" src="https://www.rdbhost.com/vendor/easyxdm/easyXDM.debug.js"></script>
+  <script type="text/javascript" src="https://www.rdbhost.com/vendor/rdbhost/1.2/jquery.rdbhost.js"> </script>
+  <script type="text/javascript" src="js/rsql.js"></script>
+  <script type="text/javascript" src="js/rdbadmin.js"></script>
+  <script type="text/javascript" src="js/json2.js"></script>
+  <script type="text/javascript" src="https://www.rdbhost.com/vendor/jquery-plugins/masonry.pkgd.js"></script>
+  <script type="text/javascript" src="js/schema.panel.js"></script>
+  <script type="text/javascript" src="js/sql.panel.js"></script>
+  <script type="text/javascript" src="js/createview.panel.js"></script>
+  <script type="text/javascript" src="js/select.panel.js"></script>
+  <script type="text/javascript" src="js/table.panel.js"></script>
+  <script type="text/javascript" src="js/altertable.panel.js"></script>
+  <script type="text/javascript" src="js/alterconstraint.panel.js"></script>
+  <script type="text/javascript" src="js/alterindex.panel.js"></script>
+  <script type="text/javascript" src="js/recedit.panel.js"></script>
+  <script type="text/javascript" src="js/function.panel.js"></script>
+  <script type="text/javascript" src="js/trigger.panel.js"></script>
+  <script type="text/javascript" src="js/permissions.panel.js"></script>
+  <script type="text/javascript" src="js/main.js"></script>
+
+</head>
+
+<body>
+	<!-- div id="uservoice-feedback"><a href="https://rdbhost.uservoice.com/forums/2515" onmouseover="UserVoice.Popin.preload(); UserVoice.Metrics.track('tab_click_conversion', 1, 'Tab Hover');" onkeydown="UserVoice.Tab.onKeyDown(event);" onclick="UserVoice.Popin.show(); UserVoice.Metrics.track('tab_click_conversion', 2, 'Tab Click'); return false;" id="uservoice-feedback-tab">Open Feedback Dialog</a></div -->
+	<div id="withoutstyle">
+	</div>
+
+	<div id="pagewrap">
+    <div id="titlebar" class="roundcorners">
+      <div class="head_tl"></div><div class="head_tr"></div>
+      <a href="/mbr" class="smtitle">RdbHost</a>
+      <span id="breadcrumb">
+        <!-- a href="/mbr">Profile</a> | -->
+        <!-- a href="http://www.rdbhost.com/" id="mainPageLink">Database Schema Display</a -->
+        User: <span id="currentUserName">anonymous</span>
+      </span>
+      <div class="clear"></div>
+      <div class="head_bl"></div><div class="head_br"></div>
+    </div>
+    <div id="wrap" class="menu_left">
+    <!-- #wrap's class is used for menu positioning -->
+      <div id="menu" class="roundtrsquare">
+        <div class="menu_tl"></div>
+        <div class="sec0">
+          <p class="btn"><button id="sqlcommand">SQL command</button></p>
+        </div>
+        <div class="sec">
+          <h4><b>Views</b></h4>
+          <div><ul id="view-list">
+            <li id="view-list-row" style="display:none">
+              <span class="browse"><a href="#/vbrowser/-vwName-" class="vwbrowse">Browse</a></span>
+              <span class="structure"><a href="#/view/-vwName-" class="vwstructure">-vwName-</a></span>
+            </li>
+          </ul></div>
+          <p class="btn"><button id="createNewViewBtn">Create new view</button></p>
+        </div>
+        <div class="sec">
+          <h4><b>Tables</b></h4>
+          <div><ul id="table-list">
+            <li id="table-list-row" style="display:none">
+              <span class="browse"><a href="#/browser/-tblName-">Browse</a></span>
+              <span class="structure"><a href="#/table/-tblName-">-tblName-</a>
+              </span></li>
+          </ul></div>
+          <p class="btn"><button id="createNewTableBtn">Create new table</button></p>
+        </div>
+        <div class="sec">
+          <h4><b>Schemata</b></h4>
+          <div><ul id="schema-list">
+            <li id="schema-list-row" style="display:none">
+              <span class="structure"><a href="#/schema/-schName-">-schName-</a></span>
+            </li>
+          </ul></div>
+          <p class="btn"><button id="createSchemaBtn">Create new schema</button></p>
+        </div>
+        <div class="sec">
+          <h4><b>Functions</b></h4>
+          <div><ul id="function-list">
+            <li id="function-list-row" style="display:none">
+              <span class="structure"><a href="#/function/-funcName-">-funcName-</a></span>
+            </li>
+          </ul></div>
+          <p class="btn"><button id="createNewFunctionBtn">Create new function</button></p>
+        </div>
+        <div class="sec">
+          <h4><b>Roles</b></h4>
+          <p class="btn"><button id="permissionsBtn">Manage permissions</button></p>
+        </div>
+        <!-- div class="sec">
+          <h4><b>Triggers</b></h4>
+          <div><ul id="trigger-list">
+            <li id="trigger-list-row" style="display:none">
+              <span class="structure"><a href="#/trigger/-triggerName-">-triggerName-</a></span>
+            </li>
+          </ul></div>
+          <p class="btn"><button id="createNewTriggerBtn">Create new trigger</button></p>
+        </div -->
+        <div class="menu_bl"></div><div class="menu_br"></div>
+      </div>
+
+      <!-- Content DIV contains main body panel of program
+      -->
+      <div id="content">
+        <h3 id="panel-navbar"></h3>
+        <h2 id="panel-heading"></h2>
+        <div>&nbsp; <img src="imgs/ajax.gif" id="ajax-indicator" alt="Loading..." /></div>
+        <div id="working_message" class="message" style="display:none"></div>
+        <div class="error" id="errorMessage" style="display:none"></div>
+
+        <!-- Login Panel - form for getting login details from user
+        -->
+        <div class="content-panel" id="login-panel" style="margin-top:100px;margin-left:100px">
+          <span style="color:#00AA00;" id="loginerror"></span>
+          <form action='' method='post' id='login-panel-form' enctype="multipart/form-data" >
+            <table>
+              <tr>
+                <th>Acct:</th>
+                <td><input type="text" size="15" maxlength="15" value="" name="acct" /></td>
+              </tr>
+              <tr>
+                <th>Email:</th>
+                <td><input type="text" size="35" maxlength="64" value="" name="email" /></td>
+              </tr>
+              <tr>
+                <th>Password:</th>
+                <td><input type="password" size="35" maxlength="35" value="" name="password" /></td>
+              </tr>
+              <tr>
+                <td colspan="2"><input type="submit" id="login-btn" value="Login" /><!-- Login</input --></td>
+              </tr>
+            </table>
+          </form>
+        </div>
+
+        <!--  Table Panel - shows structure of a table
+        -->
+        <div class="content-panel" id="table-panel">
+          <h3>Columns</h3>
+          <table id="column-details-table" cellspacing="0" summary="column details">
+            <!-- tr style="display:none;"><td style="display:none;"></td></tr -->
+            <tr>
+              <th>Column Name</th><th>Type</th><th>Default</th><th>Is null</th>
+              <th>Size</th><!-- th>Precision</th --><th>Comment</th>
+            </tr>
+            <tr class="column-details-row">
+              <th></th><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+          </table>
+          <p><input type="submit" id="alter-table-btn" value="Alter table" />
+          <h3>Constraints</h3>
+          <table id="constraint-details-table" cellspacing="0" summary="constraint details">
+            <!-- tr style="display:none;"><td style="display:none;"></td></tr -->
+            <tr><th>Name</th><th>Definition</th><th>Comment</th></tr>
+            <tr class="constraint-details-row">
+              <th></th><td></td><td></td>
+            </tr>
+          </table>
+          <p><input type="submit" id="alter-constraint-btn" value="Alter constraints" />
+          <h3>Indexes</h3>
+          <table id="index-details-table" cellspacing="0" summary="index details">
+            <!-- tr style="display:none;"><td style="display:none;"></td></tr -->
+            <tr><th>Name</th><th>Primary</th><th>Unique</th><th>Definition</th><th>Comment</th></tr>
+            <tr class="idx-details-row">
+              <th></th><td></td><td></td><td></td><td></td>
+            </tr>
+          </table>
+          <p><input type="submit" id="alter-index-btn" value="Alter indexes" /></p>
+          <h3>Triggers</h3>
+          <table id="trigger-details-table" cellspacing="0" summary="trigger details">
+            <!-- tr style="display:none;"><td style="display:none;"></td></tr -->
+            <tr><th>Name</th><th>Timing</th><th>Event</th><th>Foreach</th><th>Function</th><th>Comment</th></tr>
+            <tr class="trigger-details-row">
+              <th></th><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+          </table>
+          <p><input type="submit" id="alter-trigger-btn" value="Alter triggers" /></p>
+        </div>
+
+        <!-- Schema Panel - shows schema of the whole database
+        -->
+        <div class="content-panel" id="schema-panel" style="display:block">
+          <div style="height: 8.2639em;" id="schema">
+            <div class="table">
+              <a href="#"><strong> </strong></a><br/>
+              <em></em><br/> <br/>
+            </div>
+          </div>
+        </div>
+
+        <!-- SQL Panel - executes arbitrary queries entered into query field, with
+             optional argument fields, which may be file uploads
+        -->
+        <div class="content-panel" id="sql-panel">
+          <form action='' method='post' id='sql-panel-form' enctype="multipart/form-data" >
+            <div id="query-results-div" summary="query results">
+            </div>
+            <p style="color:#008800">Enter your query here.  Substitution tokens
+              '%s' will be replaced by contents of the argument (arg000, arg001...)
+              fields below, properly quoted. Necessary '%' chars not part of
+              substitution tokens must be doubled.
+              <!-- br />Example: "field LIKE %%abc%%". --></p>
+            <p style="color:#008800">Each argument value may be supplied by
+              a file upload.  This enables you to use binary values in queries.</p>
+            <table id="sql-panel-args" width="98%">
+              <tr>
+                <td style="border:2px #888 solid;width:100%" colspan="2">
+                  <textarea id="query-text-area" name="q" rows="20" cols="80" style="width:100%; border:none;"></textarea>
+                </td>
+              </tr>
+              <tr>
+                  <td style="width: 40%; vertical-align: top">
+                    <button id="add-pos-arg">Add Positional Arg</button>
+
+                    <table>
+                        <tr class="posArg" style="display: none"><td><span style="font-size:smaller;">arg000</span>
+                            <input type="text" id="arg000t" size="25" />
+                            <input type="file" id="arg000f" style="display:none;" />
+                            <button type="button">file</button>
+                            <button type="button" style="display:none;">text</button></td></tr>
+                        <tr class="posArg" style="display: none"><td><span style="font-size:smaller;">arg001</span>
+                            <input type="text" id="arg001t" size="25" />
+                            <input type="file" id="arg001f" style="display:none;" />
+                            <button type="button">file</button>
+                            <button type="button" style="display:none">text</button></td></tr>
+                        <tr class="posArg" style="display:none"><td><span style="font-size:smaller">arg002</span>
+                            <input type="text" id="arg002t" size="25" />
+                            <input type="file" id="arg002f" style="display:none;" />
+                            <button type="button">file</button>
+                            <button type="button" style="display:none">text</button></td></tr>
+                        <tr class="posArg" style="display:none"><td><span style="font-size:smaller">arg003</span>
+                            <input type="text" id="arg003t" size="25" />
+                            <input type="file" id="arg003f" style="display:none;" />
+                            <button type="button">file</button>
+                            <button type="button" style="display:none">text</button></td></tr>
+                        <tr class="posArg" style="display:none"><td><span style="font-size:smaller">arg004</span>
+                            <input type="text" id="arg004t" size="25" />
+                            <input type="file" id="arg004f" style="display:none;" />
+                            <button type="button">file</button>
+                            <button type="button" style="display:none">text</button></td></tr>
+                        <tr class="posArg" style="display:none"><td><span style="font-size:smaller">arg005</span>
+                            <input type="text" id="arg005t" size="25" />
+                            <input type="file" id="arg005f" style="display:none;" />
+                            <button type="button">file</button>
+                            <button type="button" style="display:none">text</button></td></tr>
+                        <tr class="posArg" style="display:none"><td><span style="font-size:smaller">arg006</span>
+                            <input type="text" id="arg006t" size="25" />
+                            <input type="file" id="arg006f" style="display:none;" />
+                            <button type="button">file</button>
+                            <button type="button" style="display:none">text</button></td></tr>
+                        <tr class="posArg" style="display:none"><td><span style="font-size:smaller">arg007</span>
+                            <input type="text" id="arg007t" size="25" />
+                            <input type="file" id="arg007f" style="display:none;" />
+                            <button type="button">file</button>
+                            <button type="button" style="display:none">text</button></td></tr>
+                    </table>
+                  </td>
+
+                  <td style="width: 40%; vertical-align: top">
+                      <button id="add-named-arg">Add Named Arg</button>
+
+                      <table>
+                          <tr class="namedArg" style="display: none"><td>
+                              <span style="font-size:smaller;">parm name:</span>
+                                <input type="text" id="parmName000" size="25" />
+                              <span style="font-size: smaller">parm value:</span>
+                                <input type="text" id="parm000t" size="25" />
+                                <input type="file" id="parm000f" style="display:none;" />
+                              <button type="button">file</button>
+                              <button type="button" style="display:none;">text</button></td></tr>
+                          <tr class="namedArg" style="display: none"><td>
+                              <span style="font-size:smaller;">parm name:</span>
+                                <input type="text" id="parmName001" size="25" />
+                              <span style="font-size: smaller">parm value:</span>
+                                <input type="text" id="parm001t" size="25" />
+                                <input type="file" id="parm001f" style="display:none;" />
+                              <button type="button">file</button>
+                              <button type="button" style="display:none">text</button></td></tr>
+                          <tr class="namedArg" style="display: none"><td>
+                              <span style="font-size:smaller;">parm name:</span>
+                              <input type="text" id="parmName002" size="25" />
+                              <span style="font-size: smaller">parm value:</span>
+                              <input type="text" id="parm002t" size="25" />
+                              <input type="file" id="parm002f" style="display:none;" />
+                              <button type="button">file</button>
+                              <button type="button" style="display:none">text</button></td></tr>
+                          <tr class="namedArg" style="display: none"><td>
+                              <span style="font-size:smaller;">parm name:</span>
+                              <input type="text" id="parmName003" size="25" />
+                              <span style="font-size: smaller">parm value:</span>
+                              <input type="text" id="parm003t" size="25" />
+                              <input type="file" id="parm003f" style="display:none;" />
+                              <button type="button">file</button>
+                              <button type="button" style="display:none">text</button></td></tr>
+                          <tr class="namedArg" style="display: none"><td>
+                              <span style="font-size:smaller;">parm name:</span>
+                              <input type="text" id="parmName004" size="25" />
+                              <span style="font-size: smaller">parm value:</span>
+                              <input type="text" id="parm004t" size="25" />
+                              <input type="file" id="parm004f" style="display:none;" />
+                              <button type="button">file</button>
+                              <button type="button" style="display:none">text</button></td></tr>
+                          <tr class="namedArg" style="display: none"><td>
+                              <span style="font-size:smaller;">parm name:</span>
+                              <input type="text" id="parmName005" size="25" />
+                              <span style="font-size: smaller">parm value:</span>
+                              <input type="text" id="parm005t" size="25" />
+                              <input type="file" id="parm005f" style="display:none;" />
+                              <button type="button">file</button>
+                              <button type="button" style="display:none">text</button></td></tr>
+                          <tr class="namedArg" style="display: none"><td>
+                              <span style="font-size:smaller;">parm name:</span>
+                              <input type="text" id="parmName006" size="25" />
+                              <span style="font-size: smaller">parm value:</span>
+                              <input type="text" id="parm006t" size="25" />
+                              <input type="file" id="parm006f" style="display:none;" />
+                              <button type="button">file</button>
+                              <button type="button" style="display:none">text</button></td></tr>
+                      </table>
+                  </td>
+              </tr>
+            </table>
+            <p style="width:98%"><input id="query-execute-button" type="submit" value="Execute" />
+              <!-- a class="lookup-create-link" id="sql-lookup-create-link">add query to lookup.queries</a -->
+            </p>
+          </form>
+        </div>
+
+        <!-- Create View Panel - form for creation or renaming of new View
+        -->
+        <div class="content-panel" id="create-view-panel">
+          <span style="color:#00AA00;" id="alter-view-tip">RDBHost Tip: renaming and schema
+            change are the only changes supported at this time.</span>
+          <p><textarea style="width: 98%;" cols="80" rows="10" name="select"></textarea></p>
+          <p>
+          <label>Schema:</label>
+          <input type="text" maxlength="64" id="view-schema" value="" name="view-schema"/>
+          <input type="hidden" value="" id="view-schema-hidden"/>
+          <label>View Name:</label>
+          <input type="text" maxlength="64" id="view-name" value="" name="view-name"/>
+          <input type="hidden" value="" id="view-name-hidden"/>
+          <input type="submit" id="create-view-btn" value="Save" />
+          <input type="submit" class="edit-sql-btn" value="Edit SQL" />
+          <input type="submit" id="drop-view-btn" style="display:none;" value="Drop" /></p>
+          <div class="sql-show">
+            <pre class="sql-show" id="create-view-sql-show">--nothing to show</pre>
+            <!-- a class="lookup-create-link">add query to lookup.queries</a -->
+          </div>
+        </div>
+
+        <!-- Create Schema Panel - form for creation of a new 'schema' (namespace
+            within a database)
+        -->
+        <div class="content-panel" id="create-schema-panel">
+          <span style="color:#00AA00;" id="alter-schema-tip">RDBHost Tip: renaming is the only change supported at this time.</span>
+          <!-- p><textarea style="width: 98%;" cols="80" rows="10" name="select"></textarea></p -->
+          <p>
+          <label>Name:</label> <input type="text" maxlength="64" value="" name="name" />
+          <button type="button" id="save-schema-btn">Save</button>
+          <button type="button" id="drop-schema-btn" style="display:none;">Drop</button></p>
+          <div class="sql-show">
+            <pre class="sql-show" id="create-schema-sql-show">--nothing to show</pre>
+            <!-- a class="lookup-create-link">add query to lookup.queries</a -->
+          </div>
+        </div>
+
+        <!-- Select Panel - shows contents of a table or view
+            includes options to sort, search, or calculate fields
+        -->
+        <div class="content-panel" id="select-panel">
+          <p class="btn">
+            <button id="select-panel-new-item">Insert New Item</button>
+          </p>
+          <fieldset><legend>Select</legend>
+          <div id="select-panel-select-div">
+            <span>
+              <select class="sel-panel-functions">
+                <option> </option>
+                <optgroup label="Functions">
+                  <option>char_length</option>
+                  <option>to_timestamp</option>
+                  <option>hex</option>
+                  <option>lower</option>
+                  <option>round</option>
+                  <option>unix_timestamp</option>
+                  <option>upper</option>
+                </optgroup>
+                <optgroup label="Aggregation">
+                  <option>avg</option>
+                  <option>count</option>
+                  <option>distinct</option>
+                  <option>max</option>
+                  <option>min</option>
+                  <option>sum</option>
+                  </optgroup>
+              </select>
+              <select class="sel-table-fields">
+                <option></option>
+              </select>
+            </span>
+          </div>
+          </fieldset>
+          <fieldset><legend>Search</legend>
+          <div id="select-panel-fwhere-div">
+            <span>
+              <select class='sel-table-fwhere'>
+                <option> </option>
+              </select>
+              <select class="sel-statement">
+                <option>=</option>
+                <option>&lt;</option>
+                <option>&gt;</option>
+                <option>&lt;=</option>
+                <option>&gt;=</option>
+                <option>!=</option>
+                <option>LIKE</option>
+                <option>REGEXP</option>
+                <option>IN</option>
+                <option>IS NULL</option>
+                <option>AGAINST</option>
+              </select>
+              <input type="text" name='where' />
+            </span>
+          </div>
+          </fieldset>
+          <fieldset><legend>Sort</legend>
+          <div id="select-panel-fsort-div">
+            <span>
+              <select class="sel-table-fsort">
+                <option> </option>
+              </select>
+              <label><input type='checkbox' name='desc' value='1' /> DESC</label>
+            </span>
+          </div>
+          </fieldset>
+          <fieldset><legend>Limit</legend>
+            <div id="select-panel-limit-div">
+              <span>
+                <input type="text" id='sel-panel-limit' size='3' value="30" />
+              </span>
+            </div>
+          </fieldset>
+          <p><code id='sel-panel_jush-sql'></code>
+            <button id="sel-panel-sql-edit">Edit</button>
+            <button id="sel-table-select-btn" >Update Results</button></p>
+          <p class="edit-needed-style no-primary-key-note" style="display:none">These records are not editable because
+            there is no <i>primary key</i> on an ordinary column or columns in the table.  Without a key, there is no way to ensure
+            only the selected record gets updated.  <i>Ordinary</i> columns do not include arrays or custom types.</p>
+          <p class="edit-needed-style only-view-note" style="display:none">These records are not editable because
+            this is a <i>view</i> and not a table.</p>
+
+          <form action='' method='post'>
+            <table border='5' cellspacing='0' cellpadding='2' id="select-panel-result-table"
+                   summary="select panel result table" class="tablehide" >
+              <tr>
+                <td></td>
+              </tr>
+            </table>
+            <p>Page: <span id="sel-pager-down"> << </span> <span id="page"></span>  <span id="sel-pager-up"> >> </span>
+                 </p>
+            <fieldset id="sel-panel-del-btn"><legend>Delete</legend>
+              <button type="button" id="sel-panel-delete-selected">Delete selected</button>
+            </fieldset>
+          </form>
+          <div id="status_message"></div>
+        </div>
+
+        <!-- Edit Record Panel - allows for the editing of individual table records
+        -->
+        <div class="content-panel" id="edit-record-panel">
+          <form action='' method='post' id='edit-record-panel-form' enctype="multipart/form-data" >
+            <table cellspacing="0" cellpadding="2" border="0" id="edit-rec-table" summary="edit rec">
+              <tr>
+                <th colspan="4" style="text-align:left;"><span id="table-comment"></span></th>
+                <th><span style="color:#888">Comments</span></th>
+              </tr>
+              <tr>
+                <th id="colname"></th>
+                <td>
+                  <input id="colval_file" type="file" style="display:none" />
+                  <input id="colval_text" type="text" style="display:inline" />
+                  <button type="button">file</button>
+                  <input type="hidden" id="colchanged" value="" />
+                  <input id="coltype" type="hidden" />
+                </td>
+                <td>null <input id="colnull" type="checkbox" style="display:inline" /></td>
+                <th><span id="column-type"></span></th>
+                <th><span id="column-comment"></span></th>
+              </tr>
+            </table>
+            <p>
+              <button type="submit" id='edit-panel-save-btn'>Save</button>
+              <button type="submit" id='edit-panel-save-insert-btn'>Save and insert next</button>
+            </p>
+          </form>
+          <div class="sql-show">
+            <pre class="sql-show" id="edit-rec-sql-show">--nothing to show</pre>
+            <!-- a class="lookup-create-link">add query to lookup.queries</a -->
+          </div>
+        </div>
+
+        <!-- Alter Index Panel - allows for alteration of indexes
+        -->
+        <div class="content-panel" id="alter-index-panel">
+          <table cellspacing="0" cellpadding="2" border="0" summary="content panel">
+            <thead>
+              <tr>
+                <th>Index Name</th>
+                <th>Index Type</th>
+                <th>Column</th>
+                <th>
+                  <input type="image" title="Add row" src="imgs/plus.gif" id="alter-index-add-row" />
+                </th>
+              </tr>
+            </thead>
+            <tbody id="alter-index-table">
+              <tr style="display:none;" id="aindex-tr-pattern_"><!-- for new indexes -->
+                <td>
+                  <input type="text" class="aindex-iname_" />
+                  <input type="hidden" class="aindex-ioldname_" value="" />
+                </td>
+                <td>
+                  <select class="aindex-itype_">
+                    <option> </option>
+                    <!-- option>PRIMARY</option -->
+                    <option>UNIQUE</option>
+                    <option>INDEX</option>
+                  </select>
+                  <input type=hidden id="aindex-ioldtype_" />
+                </td>
+                <td>
+                  <span id="aindex-fopts-0_"> <!-- style="display:none;" -->
+                    <select id="aindex-flist-0_">
+                      <option> </option>
+                    </select>
+                  </span>
+                </td>
+                <td>
+                  <input type="image" title="Remove row" src="imgs/minus.gif" class="alter-index-del-row" />
+                </td>
+              </tr>
+              <tr style="display:none;" id="aindex-tr-prior_"><!-- for prior indexes -->
+                <td>
+                  <input type="text" class="aindex-iname_" />
+                  <input type="hidden" class="aindex-ioldname_" value="" />
+                </td>
+                <td>
+                  <span class="aindex-itype_"> </span>
+                </td>
+                <td>
+                  <span id="aindex-fopts_"> </span>
+                </td>
+                <td>
+                  <input type="image" title="Remove row" src="imgs/minus.gif" class="alter-index-del-row" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p><input type="submit" id="alter-index-panel-btn" value="Alter indexes" />
+             <input type="submit" value="Edit SQL" class="edit-sql-btn" /></p>
+          <div class="sql-show">
+            <pre class="sql-show" id="alter-index-sql-show">--nothing to show</pre>
+            <!-- a class="lookup-create-link" id="lookup-alter-index">add query to lookup.queries</a -->
+          </div>
+          <!-- div class="sql-show" id="alter-index-sql-show"></div -->
+        </div>
+
+        <!-- Alter Table Panel - form for altering table structure
+        -->
+        <div class="content-panel" id="alter-table-panel">
+          <p><label for="cap-schemaName">Schema:</label>
+            <input type="text" value="" maxlength="64" id="cap-schemaName" />
+            <label for="cap-tableName">Table:</label>
+            <input type="text" value="" maxlength="64" id="cap-tableName" />
+            <input type="hidden" value="" id="cap-oldSchemaName" />
+            <input type="hidden" value="" id="cap-oldTableName" />
+            <input type="hidden" value="" id="alter-table-all-fields" /></p>
+          <table cellspacing="0" cellpadding="2" border="0" id="alter-table-details"
+                 summary="alter table details">
+            <thead>
+              <tr id="atable_th">
+                <th>Column Name</th>
+                <th>Type</th>
+                <th>Length</th>
+                <th>ARRAY</th>
+                <th>NULL</th>
+                <!-- th>PriKey</th>
+                <th>Unique</th -->
+                <th style="display: none;" id="alter-table-fdefault">Default</th>
+                <th style="display: none;" id="alter-table-fcomment">Comment</th>
+                <th><input type="image" title="Add next" src="imgs/plus.gif" id="alter-table-add-row" /></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="atable_tr_">
+                <td>
+                  <input id="alter-table-fname_" maxlength="64" value="" />
+                  <input type="hidden" id="alter-table-foldname_" value="" />
+                  <input type="hidden" id="alter-table-fpos_" value="" />
+                </td>
+                <td>
+                  <select id="alter-table-ftype_">
+                    <option>~~ keep same ~~</option>
+                    <option>varchar</option>
+                    <option>bigint</option>
+                    <option>bigserial</option>
+                    <option>bit</option>
+                    <option>bit varying</option>
+                    <option>boolean</option>
+                    <option>box</option>
+                    <option>bytea</option>
+                    <option>character varying</option>
+                    <option>character</option>
+                    <option>cidr</option>
+                    <option>circle</option>
+                    <option>date</option>
+                    <option>double precision</option>
+                    <option>inet</option>
+                    <option>integer</option>
+                    <option>interval</option>
+                    <option>line</option>
+                    <option>lseg</option>
+                    <option>macaddr</option>
+                    <option>money</option>
+                    <option>numeric</option>
+                    <option>decimal</option>
+                    <option>text</option>
+                    <option>path</option>
+                    <option>point</option>
+                    <option>serial</option>
+                    <option>time</option>
+                    <option>timestamp</option>
+                    <option>polygon</option>
+                    <option>real</option>
+                    <option>smallint</option>
+                  </select>
+                  <input type="hidden" id="alter-table-foldtype_" value="" />
+                </td>
+                <td>
+                  <input size="3" value="" id="alter-table-flength_" />
+                  <input type="hidden" id="alter-table-foldlength_" value="" />
+                </td>
+                <td>
+                  <input type="checkbox" id="alter-table-farray_" value="" />
+                  <input type="hidden" id="alter-table-foldarray_" value="" />
+                </td>
+                <td>
+                  <input type="checkbox" id="alter-table-fisnull_" value="" />
+                  <input type="hidden" id="alter-table-foldisnull_" value="" />
+                </td>
+                <!-- td>
+                  <input type="checkbox" id="alter_table_isprimarykey_" />
+                </td>
+                <td>
+                  <input type="checkbox" id="alter_table_isunique_" />
+                </td -->
+                <td style="display: none;">
+                  <input id="alter-table-fdefault_" maxlength="64" value="" />
+                  <input type="hidden" id="alter-table-folddefault_" value="" />
+                </td>
+                <td style="display: none;">
+                  <input id="alter-table-fcomment_" maxlength="255" value="" />
+                  <input type="hidden" id="alter-table-foldcomment_" value="" />
+                </td>
+                <td style="white-space: nowrap;">
+                  <input type="image" title="Remove" src="imgs/minus.gif" id="alter-table-del-row_" />
+                </td>
+              </tr>
+              <!-- tr style="display:none;"><td style="display:none;"></td></tr -->
+            </tbody>
+          </table>
+          <p><label for="alter-table-comment">Comment:</label>
+              <input type="text" maxlength="60" value="" id="alter-table-comment" />
+              <input type="hidden" id="alter-table-oldcomment" value="" />
+            <label for="atable-column-defaults">
+              <input type="checkbox" id="atable-column-defaults" />Show defaults
+            </label>
+            <label for="atable-column-comments">
+              <input type="checkbox" id="atable-column-comments" />Show column comments
+            </label></p>
+          <p><input type="submit" id="alter-table-save" value="Save" />
+            <input type="submit" id="alter-table-drop" value="Drop" />
+            <input type="submit" class="edit-sql-btn" value="Edit SQL" /></p>
+          <div class="sql-show">
+            <pre class="sql-show" id="alter-table-sql-show">--nothing to show</pre>
+            <!-- a class="lookup-create-link" id="lookup-alter-table">add query to lookup.queries</a -->
+          </div>
+          <!-- div class="sql-show"><pre id="alter-table-sql-show"></pre></div -->
+        </div>
+
+        <!-- Alter Constraint Panel - allows for adding and dropping of constraints
+        -->
+        <div class="content-panel" id="alter-constraint-panel">
+          <table cellspacing="0" cellpadding="2" border="0" summary="content panel">
+            <thead>
+              <tr>
+                <th>Constraint Name</th>
+                <th>Constraint Type</th>
+                <th>Columns</th>
+                <th><div style="width:250px;"></div></th>
+                <th>
+                  <input type="image" title="Add row" src="imgs/plus.gif"
+                         id="alter_constraint_add_row" />
+                </th>
+              </tr>
+            </thead>
+            <tbody id="alter-constraint-table">
+              <tr style="display:none;" id="aconstraint-tr-pattern">
+                <td>
+                  <input type="text" class="aconstraint-cname_" />
+                  <input type="hidden" class="aconstraint-coldname_" value="" />
+                </td>
+                <td>
+                  <select class="aconstraint-ctype_">
+                    <option>CHECK</option>
+                    <option>PRIMARY KEY</option>
+                    <option>UNIQUE</option>
+                    <option>FOREIGN KEY</option>
+                  </select>
+                  <input type=hidden class="aconstraint-coldtype_" />
+                </td>
+                <td>
+                  <span class="aconstraint-copts">
+                    <select class="aconstraint-clist">
+                      <option> </option>
+                    </select>
+                  </span>
+                </td>
+                <td>
+                  <span class="aconstraint-cother-label_"> </span>
+                  <input type="text" class="aconstraint-cother_" />
+                </td>
+                <td>
+                  <input type="image" title="Remove row"
+                         src="imgs/minus.gif" class="alter_constraint_del_row" />
+                </td>
+              </tr>
+              <tr style="display:none;" id="aconstraint-tr-prior_">
+                <td>
+                  <span class="aconstraint-cname_" > </span>
+                  <input type="hidden" class="aconstraint-coldname_" value="" />
+                </td>
+                <td>
+                  <span class="aconstraint-ctype_"> </span>
+                </td>
+                <td>
+                  <span class="aconstraint-copts"> </span>
+                </td>
+                <td>
+                  <span class="aconstraint-cother-label_"> </span>
+                  <span class="aconstraint-cother_" > </span>
+                </td>
+                <td>
+                  <input type="image" title="Remove row" src="imgs/minus.gif" class="alter_constraint_del_row" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p><input type="submit" id="alter-constraint-panel-btn" value="Alter constraints" />
+             <input type="submit" value="Edit SQL" class="edit-sql-btn" /></p>
+          <div class="sql-show">
+            <pre class="sql-show" id="alter-constraint-sql-show">--nothing to show</pre>
+            <!-- a class="lookup-create-link" id="lookup-alter-constraint">add query to lookup.queries</a -->
+          </div>
+          <!-- div class="sql-show"><pre id="alter-constraint-sql-show"> </pre></div -->
+        </div>
+
+        <!--
+          Alter Trigger Panel - allows for alteration of triggers
+        -->
+        <div class="content-panel" id="alter-trigger-panel">
+          <table cellspacing="0" cellpadding="2" border="0" summary="content panel">
+            <thead>
+              <tr>
+                <th>Trigger Name</th>
+                <th>Timing</th>
+                <th>Event</th>
+                <th>For Each</th>
+                <th>Function</th>
+                <!-- th><div style="width:250px;"></div></th -->
+                <th>
+                  <input type="hidden" id="trigger-table" />
+                  <input type="image" title="Add row" src="imgs/plus.gif"
+                         id="alter_trigger_add_row" />
+                </th>
+              </tr>
+            </thead>
+            <tbody id="alter-trigger-table">
+              <tr style="display:none;" id="atrigger-tr-pattern_">
+                <td>
+                  <input type="text" class="atrigger-tname_" />
+                  <input type="hidden" class="atrigger-toldname_" value="" />
+                </td>
+                <td>
+                  <select class="atrigger-timing_">
+                    <option>BEFORE</option>
+                    <option>AFTER</option>
+                  </select>
+                </td>
+                <td>
+                  <select class="atrigger-event_">
+                    <option>INSERT</option>
+                    <option>UPDATE</option>
+                    <option>DELETE</option>
+                    <!-- option>TRUNCATE</option -->
+                    <option>INSERT, DELETE</option>
+                    <option>INSERT, UPDATE</option>
+                    <option>UPDATE, DELETE</option>
+                    <option>INSERT, UPDATE, DELETE</option>
+                  </select>
+                </td>
+                <td>
+                  <select class="atrigger-foreach_">
+                    <option>STATEMENT</option>
+                    <option>ROW</option>
+                  </select>
+                </td>
+                <td>
+                  <select class="atrigger-function_">
+                  </select>
+                </td>
+                <td>
+                  <input type="image" title="Remove row"
+                         src="imgs/minus.gif" class="alter_trigger_del_row" />
+                </td>
+              </tr>
+              <tr style="display:none;" id="atrigger-tr-prior_">
+                <td>
+                  <input class="atrigger-tname_" value="" type="text" > </span>
+                  <input type="hidden" class="atrigger-toldname_" value="" />
+                </td>
+                <td>
+                  <span class="atrigger-timing_"> </span>
+                </td>
+                <td>
+                  <span class="atrigger-event_"> </span>
+                </td>
+                <td>
+                  <span class="atrigger-foreach_"> </span>
+                </td>
+                <td>
+                  <span class="atrigger-function_"> </span>
+                  <!-- span id="atrigger-oldfunction_"> </span -->
+                </td>
+                <td>
+                  <input type="image" title="Remove row" src="imgs/minus.gif" class="alter_trigger_del_row" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p><input type="submit" id="alter-trigger-panel-btn" value="Alter triggers" />
+             <input type="submit" value="Edit SQL" class="edit-sql-btn" /></p>
+          <div class="sql-show">
+            <pre class="sql-show" id="alter-trigger-sql-show">--nothing to show</pre>
+            <!-- a class="lookup-create-link" id="lookup-alter-trigger">add query to lookup.queries</a -->
+          </div>
+        </div>
+        <!--  Alter Trigger No-functions Panel - notifies that no trigger functions avail    -->
+        <div class="content-panel" id="no-trigger-functions" style="display:none">
+          <p>No trigger functions exist to create triggers from!! </p>
+          <p>Use <a href="#/createfunction">Create Function</a> to create a trigger function first.
+            A trigger function must have return type 'trigger'.</p>
+        </div>
+
+        <!-- Create Function Panel - form for creation of a new function.
+        -->
+        <div class="content-panel" id="create-function-panel">
+          <table cellspacing="0" callpadding="2" border="0">
+            <tbody>
+            <tr>
+              <td>
+                <label for="function-name">Schema . Name:</label>
+                <input type="text" maxlength="64" value="" id="schema-name" />
+                <input type="hidden" value="" id="old-schema-name" />
+                <input type="text" maxlength="64" value="" id="function-name" />
+                <input type="hidden" value="" id="old-function-name" />
+              </td>
+            </tr>
+            </tbody>
+          </table>
+          <table cellspacing="0" cellpadding="2" border="0" summary="-">
+            <thead>
+              <tr id="function-param-head-row">
+                <th>Parameter name</th><td>Mode</td><td>Type</td><td>Length</td>
+                <td><input type="image" title="Add next" src="imgs/plus.gif" class="function-add-row" /></td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="display:none;" id="function-param-tr_">
+                <th><input type="text" name="param-name_" id="param-name_" maxlength="64" value="" /></th>
+                <td><select id="function-param-mode_">
+                  <option>IN</option>
+                  <option>OUT</option>
+                  <option>INOUT</option>
+                </select></td>
+                <td><select id="function-ftype_" name="function-ftype_">
+                  <option>varchar</option>
+                  <option>bigint</option>
+                  <option>bigserial</option>
+                  <option>bit</option>
+                  <option>bit varying</option>
+                  <option>boolean</option>
+                  <option>box</option>
+                  <option>bytea</option>
+                  <option>character varying</option>
+                  <option>character</option>
+                  <option>cidr</option>
+                  <option>circle</option>
+                  <option>date</option>
+                  <option>double precision</option>
+                  <option>inet</option>
+                  <option>integer</option>
+                  <option>interval</option>
+                  <option>line</option>
+                  <option>lseg</option>
+                  <option>macaddr</option>
+                  <option>money</option>
+                  <option>numeric</option>
+                  <option>decimal</option>
+                  <option>text</option>
+                  <option>path</option>
+                  <option>point</option>
+                  <option>serial</option>
+                  <option>time</option>
+                  <option>timestamp</option>
+                  <option>polygon</option>
+                  <option>real</option>
+                  <option>smallint</option>
+                  <option>int4</option>
+                  <option>int2</option>
+                  <option>int8</option>
+                  <option>float4</option>
+                  <option>anyelement</option>
+                  <option>anyarray</option>
+                  <option>anynonarray</option>
+                  <option>record</option>
+                  <option>~typename~</option>
+                  <option>~tablename~</option>
+                  <option>~tablename~.~column~%TYPE</option>
+                </select></td>
+                <td>
+                  <input type="text" size="3" name="length"
+                         id="function-param-length_" value="" />
+                </td>
+                <td style="white-space: nowrap;">
+                  <input type="image" class="function-add-row" title="Add next" src="imgs/plus.gif" />
+                  <input type="image" class="function-del-row" title="Remove" src="imgs/minus.gif" />
+                  <input type="image" class="function-row-up" title="Move up" src="imgs/up.gif" />
+                  <input type="image" class="function-row-down" title="Move down" src="imgs/down.gif" />
+                </td>
+              </tr>
+              <tr id="function-param-tr_999999"><th>Return type</th>
+                <td>Setof <input type="checkbox" id="function-return-setof" /> </td>
+                <td><select id="function-ftype_999999">
+                  <option value="void">- void -</option>
+                  <option>varchar</option>
+                  <option>bigint</option>
+                  <option>bigserial</option>
+                  <option>bit</option>
+                  <option>bit varying</option>
+                  <option>boolean</option>
+                  <option>box</option>
+                  <option>bytea</option>
+                  <option>character varying</option>
+                  <option>character</option>
+                  <option>cidr</option>
+                  <option>circle</option>
+                  <option>date</option>
+                  <option>double precision</option>
+                  <option>inet</option>
+                  <option>integer</option>
+                  <option>interval</option>
+                  <option>line</option>
+                  <option>lseg</option>
+                  <option>macaddr</option>
+                  <option>money</option>
+                  <option>numeric</option>
+                  <option>decimal</option>
+                  <option>text</option>
+                  <option>path</option>
+                  <option>point</option>
+                  <option>serial</option>
+                  <option>time</option>
+                  <option>timestamp</option>
+                  <option>polygon</option>
+                  <option>real</option>
+                  <option>smallint</option>
+                  <option>int4</option>
+                  <option>int2</option>
+                  <option>int8</option>
+                  <option>float4</option>
+                  <option>anyelement</option>
+                  <option>anyarray</option>
+                  <option>anynonarray</option>
+                  <option>record</option>
+                  <option>~typename~</option>
+                  <option>~tablename~</option>
+                  <option>~tablename~.~column~%TYPE</option>
+                  <option>trigger</option>
+                  </select></td>
+                <td><input type="text" name="function-param-length_" size="3"
+                           value="" id="function-param-length_999999" /></td>
+                <td>&nbsp;</td>
+              </tr>
+            </tbody>
+          </table>
+          <p><textarea style="width: 98%;" cols="80" rows="10" id="function-definition"></textarea></p>
+          <span class="options-p">
+            <p><label for="immutable">Immutable</label>
+              <input id="immutable" name="volatil" type="radio" value="IMMUTABLE" /> &nbsp;
+              <label for="stable">Stable </label>
+              <input id="stable" name="volatil" type="radio" value="STABLE" /> &nbsp;
+              <label for="volatile">Volatile </label>
+              <input id="volatile" name="volatil" type="radio" value="VOLATILE" checked="checked" /></p>
+            <p><label for="invoker">Security: Invoker </label>
+              <input id="invoker" name="secdefiner" type="radio" value="INVOKER" checked="checked"/> &nbsp;
+              <label for="definer">Definer </label>
+              <input id="definer" name="secdefiner" type="radio" value="DEFINER" /></p>
+            <p><label for="nullok">Called on Null Input </label>
+              <input id="nullok" name="strict" type="radio" value="" checked="checked" /> &nbsp;
+              <label for="strict">Return Null on Null Input </label>
+              <input id="strict" name="strict" type="radio" value="STRICT" /></p>
+
+            <p><label for="langsql">SQL </label>
+                <input id="langsql" name="lang" type="radio" value="sql" /> &nbsp;
+              <label for="langplpgsql">PL/pgSQL </label>
+                <input id="langplpgsql" name="lang" type="radio" value="plpgsql" checked="checked" />
+              <label for="langplv8">PL/V8</label>
+                <input id="langplv8" name="lang" type="radio" value="plv8" />
+            </p>
+
+          </span>
+          <p class="edit-needed-style trigger-note" style="display:none">The 'trigger' return type is useful
+            only for creating functions to be used as triggers, and is the required return type for that purpose.
+            After creating the trigger function, you must create the trigger itself, from the table panel.</p>
+          <p class="edit-needed-note edit-needed-style" style="display:none">Not enough specific information has been
+            entered to enable creating the function. When the form is complete, please click the [Edit SQL] button
+            and edit in the missing elements.  Generally, these missing elements are indicated by placeholders such
+            as ~function~ or ~column~.</p>
+          <p><input type="button" id="save-function-btn" value="Save" />&nbsp;
+            <input type="button" style="display:none;" id="drop-function-btn" value="Drop" />&nbsp;
+            <input type="button" value="Edit SQL" class="edit-sql-btn" /></p>
+          <div class="sql-show">
+            <pre class="sql-show" id="alter-function-sql-show">--nothing to show</pre>
+            <!-- a class="lookup-create-link" id="lookup-alter-function">add query to lookup.queries</a -->
+          </div>
+          <input type="hidden" id="old-sql-function-create-query" value="" />
+        </div>
+
+        <!-- Permissions Panel - allows for the editing of individual table records
+        -->
+        <div class="content-panel" id="permissions-panel">
+          <form action='' method='post' id='permissions-panel-form' enctype="multipart/form-data" >
+            <table cellspacing="0" cellpadding="2" border="0" id="permissions-table" summary="edit rec">
+              <thead>
+                <tr>
+                  <th class="resource-name">Resource Name</th>
+                  <th class="super-role">Super</th>
+                  <th class="auth-role">Auth</th>
+                  <th class="preauth-role">Preauth</th>
+                  <th class="read-role">Reader</th>
+                  <th class="_public_-role" style="display:none">_public_</th>
+                </tr>
+                <tr><th colspan="6"></th> </tr>
+              </thead>
+              <tbody>
+              <tr class="perm-row">
+                <td>File Name</td>
+                <td class="super-role"></td>
+                <td class="auth-role"></td>
+                <td class="preauth-role"></td>
+                <td class="read-role"></td>
+                <td class="_public_-role" style="display:none">
+                </td>
+              </tr>
+              <tr class="sub-row">
+                <td></td><td colspan="4"></td><td style="display:none"></td>
+              </tr>
+              </tbody>
+            </table>
+            <p>
+              <button type="submit" id='permissions-save-btn'>Save</button>
+            </p>
+          </form>
+          <div class="sql-show">
+            <pre class="sql-show" id="permissions-sql-show">--nothing to show</pre>
+          </div>
+        </div>
+
+      </div>
+      <div id='lang'></div>
+    </div><!-- wrap.menu_left -->
+
+
+    <!-- end of content DIV
+         stuff below is just generic footer stuff.
+    -->
+		<div id="footer">
+			<a href="/">Rdbhost Home Page</a> |
+			<a href="mailto:dkeeney@rdbhost.com">dkeeney@rdbhost.com</a>
+		</div>
+
+    <script type="text/javascript">
+      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+      document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+      try{
+      var pageTracker = _gat._getTracker("UA-9284496-1");
+      pageTracker._trackPageview();
+      } catch(err) {}
+    </script>
+    <script type="text/javascript">
+        var uservoiceOptions = {
+          /* required */
+          key: 'rdbhost',
+          host: 'rdbhost.uservoice.com',
+          forum: '2515',
+          showTab: true,
+          /* optional */
+          alignment: 'right',
+          background_color:'#a06',
+          text_color: 'white',
+          hover_color: '#06C',
+          lang: 'en'
+        };
+
+        function _loadUserVoice() {
+          var s = document.createElement('script');
+          s.setAttribute('type', 'text/javascript');
+          s.setAttribute('src', ("https:" == document.location.protocol ? "https://" : "http://") + "cdn.uservoice.com/javascripts/widgets/tab.js");
+          document.getElementsByTagName('head')[0].appendChild(s);
+        }
+        _loadSuper = window.onload;
+        window.onload = (typeof window.onload != 'function') ? _loadUserVoice : function() { _loadSuper(); _loadUserVoice(); };
+    </script>
+	</div>
+</body>
+</html>

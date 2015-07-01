@@ -1,0 +1,30 @@
+*{padding:0;margin:0}
+#pagewrap {display:none}
+#withoutstyle {display:block}
+body,html{background-color:#fff;color:#333;font-family:Arial,Helvetica,Sans,sans-serif;font-size:13px;line-height:1.3em}
+li{list-style:none}
+a{color:blue}
+a:visited{color:navy}
+a:hover{color:red}
+a:active{color:red}
+img{vertical-align:middle}
+/* #pagewrap{position:relative;width:100%;margin:0 auto} */
+#wrap{position:relative}
+#menu{position:relative}
+.menu_left #menu{float:left}
+.menu_right #menu{float:right}
+.menu_left #content{margin-left:260px}
+.menu_right #content{margin-right:260px}
+#menu li .browse{font-size:80%}
+#content{position:relative}
+#panel-heading{font-weight:normal}
+#schema{position:relative}
+#lang{position:absolute;top:0;left:0}
+#footer{clear:both}
+.clear{clear:both}
+.nowrap{white-space:nowrap}
+.error{color:red}
+.hidden{display:none}
+.content-panel {
+    display:none;
+}
