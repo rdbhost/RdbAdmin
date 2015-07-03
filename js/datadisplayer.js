@@ -3,7 +3,6 @@
 
 function DataDisplayer(rdbAdmin)
 {
-    /* object to handle creation and renaming of views */
 
     var entityMap = {
         "&": "&amp;",
@@ -14,7 +13,9 @@ function DataDisplayer(rdbAdmin)
         "/": '&#x2F;'
     };
 
-    var this_ = this;
+    var this_ = this,
+        $headerRow, $headerCheckboxItem, $headerCell, $bodyRow, $bodyCheckboxItem, $bodyCell;
+
     this.dataWasTruncated = undefined;
 
     function escapeHtml(str) {
@@ -86,12 +87,12 @@ function DataDisplayer(rdbAdmin)
         /* import html elements from DOM for table generation
          */
         var $table = $('#reference-data-table');
-        this.$headerRow = $('thead tr', $table);
-        this.$headerCheckboxItem = $('th:first', this.$headerRow).remove();
-        this.$headerCell = $('th:first', this.$headerRow).remove();
-        this.$bodyRow = $('tbody tr', $table);
-        this.$bodyCheckboxItem = $('td:first', this.$bodyRow).remove();
-        this.$bodyCell = $('td:first', this.$bodyRow).remove();
+        $headerRow = $('thead tr', $table);
+        $headerCheckboxItem = $('th:first', $headerRow).remove();
+        $headerCell = $('th:first', $headerRow).remove();
+        $bodyRow = $('tbody tr', $table);
+        $bodyCheckboxItem = $('td:first', $bodyRow).remove();
+        $bodyCell = $('td:first', $bodyRow).remove();
     };
 
     this.show = function (tableId, header, rows, isEditable, fullRecs) {
@@ -118,16 +119,18 @@ function DataDisplayer(rdbAdmin)
 
             // create header of html table
             //
-            $tr = this.$headerRow.clone();
+            $tr = $headerRow.clone();
             if (isEditable || header.length === 0) {
-                $tr.append(this.$headerCheckboxItem.clone());
+                $tr.append($headerCheckboxItem.clone());
             }
 
             for (var i in header) {
 
                 // add html column headers
-                $cell = this.$headerCell.clone();
+                $cell = $headerCell.clone();
                 $('span', $cell).text(header[i][1]);
+
+                // todo - add special formats to headers
                 $tr.append($cell);
             }
             $tr.appendTo($table);
@@ -140,14 +143,14 @@ function DataDisplayer(rdbAdmin)
 
                     var row = rows[i];
 
-                    $tr = this.$bodyRow.clone();
+                    $tr = $bodyRow.clone();
                     if (isEditable) {
-                        $tr.append(this.$bodyCheckboxItem.clone());
+                        $tr.append($bodyCheckboxItem.clone());
                     }
 
                     for (var j in row) {
 
-                        $cell = this.$bodyCell.clone();
+                        $cell = $bodyCell.clone();
                         $cell.html(reformat(row[j], fullRecs));
                         $tr.append($cell);
                     }
@@ -158,8 +161,8 @@ function DataDisplayer(rdbAdmin)
             else {
                 // show a null-message row
                 //
-                $tr = this.$bodyRow.clone();
-                $cell = this.$bodyCell.clone();
+                $tr = $bodyRow.clone();
+                $cell = $bodyCell.clone();
                 var colCt = header.length;
                 if (isEditable)
                     colCt = colCt + 1;
@@ -170,9 +173,7 @@ function DataDisplayer(rdbAdmin)
                 $tr.appendTo($table);
             }
         }
-
     }
-
 }
 
 

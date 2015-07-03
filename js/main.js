@@ -390,7 +390,7 @@
 
         rdbAdmin.init(app);
         dataDisplayer.init_handlers(app);
-        sqlPanel.init_handlers(receditPanel);
+        sqlPanel.init_handlers();
         permissionsPanel.init_handlers(app);
         loginPanel.init_handlers(app, loggedIn, notLoggedIn);
         schemaPanel.init_handlers();

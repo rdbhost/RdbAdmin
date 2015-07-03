@@ -106,7 +106,7 @@ function SelectPanel(rdbAdmin, databaseManager, sqlPanel, dataDisplayer) {
         $(':input', $form).change(function (ev) {
             updateSQL();
         });
-        // toggle control fieldset boxes hidden/nothidden
+        // redo results display when full-values checkbox gets toggles
         $('#select-full-values', $form).change(function (ev) {
             buildTable();
             ev.stopPropagation();
@@ -365,6 +365,7 @@ function SelectPanel(rdbAdmin, databaseManager, sqlPanel, dataDisplayer) {
 
             var fullRecs = $('#select-full-values').is(':checked');
             fillSelectControls(insertAllowed, deleteAllowed);
+
             dataDisplayer.show(tableId, json.records.header, json.records.rows || [], listIsEditable, fullRecs);
 
             if (dataDisplayer.dataWasTruncated || fullRecs)

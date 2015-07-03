@@ -79,6 +79,7 @@ button.disabledBtn:hover, input[type=button].disabledBtn:hover, input[type=submi
   color: #818181;
 }
 #sel-table_pager b span{color:#555}
+#select-full-value-checkbox, #sql-full-value-checkbox {float: right; margin-right: 20px; font-size: smaller;}
 #titlebar {
     z-index:50;
     width:100%;

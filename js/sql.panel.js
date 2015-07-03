@@ -14,11 +14,12 @@ function SqlPanel(rdbAdmin, sqlEngine, dataDisplayer) {
     var sqlResults = [],
         formId = 'sql-panel-form',
         queryHandoff = undefined,
-        receditPanel = undefined,
         $entryField = undefined,
+        $tableSource = undefined,
         that = this;
 
     // function to handle error result of query submit
+    //
     function errback(err) {
 
         rdbAdmin.onStopQueryExecution();
@@ -27,19 +28,18 @@ function SqlPanel(rdbAdmin, sqlEngine, dataDisplayer) {
             err2 = Array.apply(null, err2);
         }
         var arg2 = Array.apply(null, arguments);
-        //alert(arg2.join(', '));
         rdbAdmin.showErrorMessage('<pre>' + arg2.join(', ') + '</pre>');
     }
 
-    this.init_handlers = function (rePanel) {
+    this.init_handlers = function () {
 
-        receditPanel = rePanel;
         $entryField = $('#query-text-area');
         $('#sqlcommand').click(function () {
             rdbAdmin.loadNewPage('#/sqlcommand');
         });
 
         var $form = $('#' + formId);
+        $tableSource = $('#sql-panel-result-table', $form).remove();
         $form.find('#query-execute-button').click(function (ev) {
             console.log('query-execute-button clicked');
             ev.stopImmediatePropagation();
@@ -71,35 +71,16 @@ function SqlPanel(rdbAdmin, sqlEngine, dataDisplayer) {
         $entryField.change(function (ev) {
 
             ev.stopPropagation();
-/*
-            if ($(this).val() !== '') {
-                $('.lookup-create-link', $form).removeClass('disabledLink');
-            }
-            else {
-                $('.lookup-create-link', $form).addClass('disabledLink');
-            }
-*/
             var fldQuery = $entryField.val();
-            if (fldQuery) {
+            if (fldQuery)
                 jQuery.cookie('sql', fldQuery);
-            }
         });
 
-/*
-        $('.lookup-create-link', $form).click(function (ev) {
-
+        // redo results display when full-values checkbox gets toggles
+        $('#sql-full-values', $form).change(function (ev) {
+            that.fillResultsTable();
             ev.stopPropagation();
-            var query = $entryField.val();
-            if (!query) {
-                alert('enter a query first!');
-            }
-            else {
-                var fieldTransfer = { 'query': query };
-                receditPanel.useRecordLater(fieldTransfer);
-                rdbAdmin.loadNewPage('#/browser/insert/' + encodeURIComponent('lookup.queries'));
-            }
         });
-*/
     };
 
     this.showQuery = function (query) {
@@ -113,6 +94,7 @@ function SqlPanel(rdbAdmin, sqlEngine, dataDisplayer) {
             return false;
         }
         this.clearPanel();
+        $('#sql-full-value-checkbox').hide();
         rdbAdmin.setHeading("Perform SQL Query");
 
         $form.find('table :input').each(function () {
@@ -239,9 +221,9 @@ function SqlPanel(rdbAdmin, sqlEngine, dataDisplayer) {
         // prep arg:### fields
         $panel.find(':input[id^=parm0]:visible').each(function () {
             var $argid = $(this).attr('id');
-            var argNameKey = 'parmName' + $argid.substr(4,3);
-            var argName = $panel.find('#'+argNameKey).val();
-            $(this).attr('name', 'arg:'+argName);
+            var argNameKey = 'parmName' + $argid.substr(4, 3);
+            var argName = $panel.find('#' + argNameKey).val();
+            $(this).attr('name', 'arg:' + argName);
         });
 
         // functions to handle results of query submit
@@ -253,55 +235,34 @@ function SqlPanel(rdbAdmin, sqlEngine, dataDisplayer) {
         // querying
         rdbAdmin.onStartQueryExecution();
         rdbAdmin.resetMessages();
-
-        //return false;
     };
 
     this.fillResultsTable = function () {
+
         var $resultsDiv = $("#query-results-div"),
-            $tabHeader, $tabBody, $tab, $cell;
+            $table;
 
         if (sqlResults.length) {
 
+            $resultsDiv.empty();
             for (var _r in sqlResults) {
 
-                var r = sqlResults[_r];
+                var r = sqlResults[_r],
+                    noTruncate = $('#sql-full-values').is(':checked');
 
-                $tabHeader = $("<thead>");
-                $tabBody = $("<tbody>");
-                $tab = $('<table></table>');
+                $table = $tableSource.clone();
+                $table.attr('id', 'sql-panel-result-table' + _r);
 
-                for (var i in r.records.header) {
-
-                    var col = r.records.header[i][1];
-                    $cell = $("<th>");
-                    $cell.text(col);
-                    $tabHeader.append($cell);
-                }
-
-                var $tabRow, row;
-                for (i in r.records.rows) {
-
-                    row = r.records.rows[i];
-                    $tabRow = $("<tr>");
-
-                    for (var j in row) {
-                        if (row.hasOwnProperty(j)) {
-                            $cell = $("<td>");
-                            // todo - change this so arrays are handled better
-                            $cell.append(document.createTextNode(row[j]));
-                            $tabRow.append($cell);
-                        }
-                    }
-
-                    $tabBody.append($tabRow);
-                }
-
-                $tab.append($tabHeader);
-                $tab.append($tabBody);
-
-                $resultsDiv.append($tab);
+                $resultsDiv.append($table);
+                dataDisplayer.show('sql-panel-result-table' + _r, r.records.header, r.records.rows, false, noTruncate);
             }
+
+            if (dataDisplayer.dataWasTruncated || noTruncate)
+                $('#sql-full-value-checkbox').show();
+            else
+                $('#sql-full-value-checkbox').hide();
+
+            $resultsDiv.show();
         }
     };
 }

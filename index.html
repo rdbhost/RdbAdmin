@@ -208,6 +208,12 @@
         -->
         <div class="content-panel" id="sql-panel">
           <form action='' method='post' id='sql-panel-form' enctype="multipart/form-data" >
+            <table border='5' cellspacing='0' cellpadding='2' id="sql-panel-result-table"
+                   summary="select panel result table" class="tablehide" >
+              <tr>
+                <td></td>
+              </tr>
+            </table>
             <div id="query-results-div" summary="query results">
             </div>
             <p style="color:#008800">Enter your query here.  Substitution tokens
@@ -217,6 +223,7 @@
               <!-- br />Example: "field LIKE %%abc%%". --></p>
             <p style="color:#008800">Each argument value may be supplied by
               a file upload.  This enables you to use binary values in queries.</p>
+            <div id="sql-full-value-checkbox">Show complete field values <input id="sql-full-values" type="checkbox" value="" /> </div>
             <table id="sql-panel-args" width="98%">
               <tr>
                 <td style="border:2px #888 solid;width:100%" colspan="2">
@@ -1104,7 +1111,7 @@
           </div>
         </div>
 
-        <!-- reference table, cannibalized for parts, to never by shown intact --->
+        <!-- reference table, cannibalized for parts, to never be shown intact --->
         <table border='5' id="reference-data-table" style="display: none" >
           <thead>
           <tr>
