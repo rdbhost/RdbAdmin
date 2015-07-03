@@ -14,24 +14,56 @@ function DataDisplayer(rdbAdmin)
         "/": '&#x2F;'
     };
 
-    function escapeHtml(string) {
-        return String(string).replace(/[&<>"'\/]/g, function (s) {
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"'\/]/g, function (s) {
             return entityMap[s];
         });
     }
 
+    function escapeLenLimit(str, lim) {
+        if (lim === undefined || lim < 200) {
+            lim = 500;
+        }
+        if (str.length > lim)
+            return escapeHtml(str.substr(0, 250)) + '<span class=null-data>.....................</span>'
+                + escapeHtml(str.substr(str.length-150));
+        return escapeHtml(str)
+    }
+
+
     function reformat(cellData) {
 
-        var $cell;
+        var $cell, tmpArray, $t;
         if (cellData === null) {
             $cell = $('<span class="null-data"></span>');
             $cell.text('null');
 
             return $cell;
         }
+        else if ($.isArray(cellData)) {
 
+            if (cellData.length) {
+
+                tmpArray = [$('<span class=null-data>{</span>')];
+                for (var cD in cellData) {
+
+                    tmpArray.push(reformat(cellData[cD]));
+                    tmpArray.push($('<span class=null-data>, </span>'));
+                }
+                tmpArray.push($('<span class=null-data>}</span>'));
+
+                $t = $('<div>');
+                while (tmpArray.length)
+                    $t.append(tmpArray.shift());
+                return $t.html();
+            }
+
+            else {
+                return $('<span class=null-data>{}</span>');
+            }
+        }
         else {
-            return escapeHtml(cellData);
+            return escapeLenLimit(cellData);
         }
     }
 
