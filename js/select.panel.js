@@ -1,5 +1,8 @@
-function SelectPanel(rdbAdmin, databaseManager, sqlPanel)
-/* object to handle creation and renaming of views */ {
+
+
+/* object to handle creation and renaming of views */
+function SelectPanel(rdbAdmin, databaseManager, sqlPanel, dataDisplayer) {
+
     this.panelId = "select-panel";
     var tableId = 'select-panel-result-table',
     // tableIdentifier is the ascii/unicode table name, optionally with schema
@@ -260,15 +263,13 @@ function SelectPanel(rdbAdmin, databaseManager, sqlPanel)
 
         // check if this row is the last - if isn't - return false
         var $span = $(field).closest('span');
-        if ($span.nextAll('span:first').length !== 0) {
-
+        if ($span.nextAll('span:first').length !== 0)
             return false;
-        }
+
         var $newspan = $span.clone();
 
         // clean selects in cloned row
         var selects = $newspan.find('select');
-
         for (var i = 0; i < selects.length; i += 1) {
 
             selects[i].name = selects[i].name.replace(/[a-z]\[[0-9]+/, '$&1');
@@ -276,12 +277,12 @@ function SelectPanel(rdbAdmin, databaseManager, sqlPanel)
         }
 
         var inputs = $newspan.find('input');
-
         if (inputs.length) {
 
             inputs[0].name = inputs[0].name.replace(/[a-z]\[[0-9]+/, '$&1');
             inputs[0].value = '';
         }
+
         $span.parent().append('<br/>').append($newspan);
         return true;
     }
@@ -319,8 +320,7 @@ function SelectPanel(rdbAdmin, databaseManager, sqlPanel)
 
     function buildTable() {
 
-        var $table = $('#' + tableId),
-            $panel = $('#' + that.panelId);
+        var $panel = $('#' + that.panelId);
         if (data === undefined) {
             clearSelectControls();
         }
@@ -354,71 +354,17 @@ function SelectPanel(rdbAdmin, databaseManager, sqlPanel)
                 buildPager()
             }
 
-            // empty the table
-            $table.empty();
+            // show notes for no-edit cases
+            $('.no-primary-key-note', $panel)[(listIsEditable || isView) ? 'hide' : 'show']();
+            $('.only-view-note', $panel)[isView ? 'show' : 'hide']();
 
-            if (data && data.header) {
-
-                // add select option
-                deleteAllowed = listIsEditable && data.rows && data.rows.length;
-                fillSelectControls(insertAllowed, deleteAllowed);
-
-                // show notes for no-edit cases
-                $('.no-primary-key-note', $panel)[(listIsEditable || isView) ? 'hide' : 'show']();
-                $('.only-view-note', $panel)[isView ? 'show' : 'hide']();
-
-                // create header of html table
-                if (listIsEditable || data.header.length === 0) {
-                    $('<tr id="sel-table_th"><td>' +
-                        '<input type="checkbox" id="sel-table-selitem" />all' +
-                        '</td></tr>').appendTo($table);
-                }
-                else {
-                    $('<tr id="sel-table_th"></tr>').appendTo($table);
-                }
-
-                for (var i in data.header) {
-
-                    // add html table header
-                    $('#sel-table_th').append('<th><span class="btn colhdr">' +
-                        data.header[i][1] + '</span></th>');
-                }
-
-                // render data
-                if (data && data.rows && data.rows.length) {
-
-                    for (i in data.rows) {
-
-                        var row = data.rows[i];
-
-                        if (listIsEditable) {
-
-                            $('<tr id="sel-table_tr_' + i + '"><td>' +
-                                '<input type="checkbox" class="sel-table-selitem" />' +
-                                '<span class="btn sel-table-tr-edit">edit</span>' + '</td></tr>').appendTo($table);
-                        }
-                        else {
-
-                            $('<tr id="sel-table_tr_' + i + '"></tr>').appendTo($table);
-                            //'"><td> </td></tr>').appendTo(table);
-                        }
-
-                        var tabRow, cell;
-                        for (var j in row) {
-
-                            tabRow = $('#sel-table_tr_' + i).get(0);
-                            cell = document.createElement("td");
-                            cell.appendChild(document.createTextNode(row[j]));
-                            tabRow.appendChild(cell);
-                        }
-                    }
-                }
-            }
+            var fullRecs = false;  // todo - set this meaningfully
+            fillSelectControls(insertAllowed, deleteAllowed);
+            dataDisplayer.show(tableId, json.records.header, json.records.rows || [], listIsEditable, fullRecs);
 
             reveal();
         }
 
-        $table.empty();
         rdbAdmin.onStartQueryExecution();
 
         // send query to server

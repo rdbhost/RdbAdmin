@@ -5,7 +5,7 @@
 
  */
 
-function SqlPanel(rdbAdmin, sqlEngine) {
+function SqlPanel(rdbAdmin, sqlEngine, dataDisplayer) {
 
     if (!rdbAdmin) {
         alert('bad rdbAdmin');

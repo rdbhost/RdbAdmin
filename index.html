@@ -19,6 +19,7 @@
   <script type="text/javascript" src="js/rsql.js"></script>
   <script type="text/javascript" src="js/rdbadmin.js"></script>
   <script type="text/javascript" src="https://www.rdbhost.com/vendor/jquery-plugins/masonry.pkgd.js"></script>
+  <script type="text/javascript" src="js/datadisplayer.js"></script>
   <script type="text/javascript" src="js/schema.panel.js"></script>
   <script type="text/javascript" src="js/sql.panel.js"></script>
   <script type="text/javascript" src="js/createview.panel.js"></script>
@@ -1100,6 +1101,24 @@
             <pre class="sql-show" id="permissions-sql-show">--nothing to show</pre>
           </div>
         </div>
+
+        <!-- reference table, cannibalized for parts, to never by shown intact --->
+        <table border='5' id="reference-data-table" style="display: none" >
+          <thead>
+          <tr>
+            <th><input type="checkbox" id="sel-table-selitem" />all</th>
+            <th><span class="btn colhdr"></span></th>'
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><input type="checkbox" class="sel-table-selitem" />
+              <span class="btn sel-table-tr-edit">edit</span></td>
+            <td></td>
+          </tr>
+          </tbody>
+        </table>
+
 
       </div>
       <div id='lang'></div>

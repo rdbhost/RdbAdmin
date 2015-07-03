@@ -3,128 +3,114 @@
 
  */
 
-var ALL_ROLES = [ 'super', 'auth', 'preauth', 'read' ],
-
-    ALL_PRIVS = {
-        'schema' : ['create', 'usage', 'temp'],
-        'table' : ['select', 'insert', 'update','delete'],
-        'view' :   ['select'],
-        'sequence' : ['usage','select','update'],
-        'function' :  ['execute']                       },
-
-    NAMED_SCHEMATA = [ 'public', 'auth', 'lookup', 'monitor' ],
-
-    PRIV_CODES = {
-        'r' : 'select',
-        'w' : 'update',
-        'a' : 'insert',
-        'd' : 'delete',
-        'D' : 'truncate',
-        'x' : 'references',
-        't' : 'trigger',
-        'X' : 'execute',
-        'U' : 'usage',
-        'C' : 'create',
-        'c' : 'connect',
-        'T' : 'temporary',
-        '*' : 'grnt'            };
-
 function Statuser() {
 
-    this.statusOf = function(schema, name, typ, role, priv) {
+    this.statusOf = function (schema, name, typ, role, priv) {
 
         var t = statusTree[role];
-        if ( !t ) return '';
+        if (!t) return '';
 
         t = t[schema];
-        if ( !t ) return '';
+        if (!t) return '';
 
         t = t[typ];
-        if ( !t ) return '';
+        if (!t) return '';
 
         t = t[priv];
-        if ( !t ) return '';
+        if (!t) return '';
 
         t = t[name] || t['*'];
-        if ( !t ) return '';
+        if (!t) return '';
 
         return t;
     };
 
     var MANDATORY = [
 
-            [ 'lookup', 'schema','','usage','*' ],
-            [ 'monitor','schema','','usage','*' ],
-            [ 'auth',   'schema','','usage','*' ],
-            [ 'public', 'schema','','usage','*' ],
+            ['lookup', 'schema', '', 'usage', '*'],
+            ['monitor', 'schema', '', 'usage', '*'],
+            ['auth', 'schema', '', 'usage', '*'],
+            ['public', 'schema', '', 'usage', '*'],
 
-            [ 'monitor','function','*','execute','*'],
-            [ 'auth',   'function','*','execute','*'],
-            [ 'lookup', 'function', '_lookup_page(character varying,character varying[])', 'execute', '*' ]
+            ['monitor', 'function', '*', 'execute', '*'],
+            ['auth', 'function', '*', 'execute', '*'],
+            ['lookup', 'function', '_lookup_page(character varying,character varying[])', 'execute', '*']
         ],
 
         RECOMMENDED = [
             /*  schema  type  resource|*  priv|priv[]|*  role|*  */
-            [ '*', 'schema', '', 'usage', '*' ],
+            ['*', 'schema', '', 'usage', '*'],
 
-            [ 'lookup', 'schema', '', 'usage', '*' ],
-            [ 'lookup', 'table', 'preauth_queries', 'select', ['preauth', 'auth'] ],
-            [ 'lookup', 'table', 'pseudofiles', 'select', ['read', 'preauth', 'auth'] ],
+            ['lookup', 'schema', '', 'usage', '*'],
+            ['lookup', 'table', 'preauth_queries', 'select', ['preauth', 'auth']],
+            ['lookup', 'table', 'pseudofiles', 'select', ['read', 'preauth', 'auth']],
 
-            [ 'auth', 'table', 'openid_accounts', 'select', ['auth', 'preauth']]
+            ['auth', 'table', 'openid_accounts', 'select', ['auth', 'preauth']]
         ],
 
         DISCOURAGED = [
             /*  schema  type  resource|*  priv|priv[]|*  role|*  */
-            [ '*', 'schema', '*', 'create', ['read','preauth','auth'] ],
+            ['*', 'schema', '*', 'create', ['read', 'preauth', 'auth']],
 
-            [ 'monitor', 'table', 'sqllog', '*', ['preauth','auth','read'] ],
+            ['monitor', 'table', 'sqllog', '*', ['preauth', 'auth', 'read']],
 
-            [ 'lookup', 'table', '*', ['insert','update','delete'], ['preauth','auth'] ],
+            ['lookup', 'table', '*', ['insert', 'update', 'delete'], ['preauth', 'auth']],
 
-            [ 'auth', 'table', 'openid_accounts', ['insert','update','delete'], '*']
+            ['auth', 'table', 'openid_accounts', ['insert', 'update', 'delete'], '*']
             /* [ 'lookup', 'table', 'queries', '*', 'read'], */
         ],
 
         FORBIDDEN = [
 
-            [ 'auth', 'table', 'openid_accounts', '*', 'read' ],
+            ['auth', 'table', 'openid_accounts', '*', 'read'],
 
-            [ 'lookup', 'table', 'pseudofiles', ['insert','update','delete'], 'read'],
-            [ 'lookup', 'table', 'preauth_queries', '*', 'read']
+            ['lookup', 'table', 'pseudofiles', ['insert', 'update', 'delete'], 'read'],
+            ['lookup', 'table', 'preauth_queries', '*', 'read']
         ],
 
-        // object to gather
+        ALL_ROLES = ['super', 'auth', 'preauth', 'read'],
+
+        ALL_PRIVS = {
+            'schema': ['create', 'usage', 'temp'],
+            'table': ['select', 'insert', 'update', 'delete'],
+            'view': ['select'],
+            'sequence': ['usage', 'select', 'update'],
+            'function': ['execute']
+        },
+
+        NAMED_SCHEMATA = ['public', 'auth', 'lookup', 'monitor'],
+
+    // object to gather
         statusTree = {};
 
     /*
-      statusTree = { 'roleX' :
-                        {  'schemaX' :
-                            {  'schema|table|view..' :
-                                {  'select|update|insert...'  :
-                                    {   'rsrcName' : 'must|should|should-not|must-not'
+     statusTree = { 'roleX' :
+     {  'schemaX' :
+     {  'schema|table|view..' :
+     {  'select|update|insert...'  :
+     {   'rsrcName' : 'must|should|should-not|must-not'
      */
 
     function eachRequirement(schema, typ, rsrcName, priv, role, stat) {
 
-        if ( role === 'super' )
+        if (role === 'super')
             return;
 
-        if ( role === '*' )
+        if (role === '*')
             role = ALL_ROLES;
 
-        if ( typ == 'schema' )
+        if (typ == 'schema')
             rsrcName = schema;
 
-        if ( $.isArray(role) ) {
-            _.each(role, function(el) {
-                if ( ! statusTree[el] )
+        if ($.isArray(role)) {
+            _.each(role, function (el) {
+                if (!statusTree[el])
                     statusTree[el] = {};
                 eachRole(statusTree[el], schema, typ, rsrcName, priv, stat);
             })
         }
         else {
-            if ( ! statusTree[role] )
+            if (!statusTree[role])
                 statusTree[role] = {};
             eachRole(statusTree[role], schema, typ, rsrcName, priv, stat);
         }
@@ -132,18 +118,18 @@ function Statuser() {
 
     function eachRole(roleHash, schema, typ, rsrcName, priv, stat) {
 
-        if ( schema === '*' )
+        if (schema === '*')
             schema = NAMED_SCHEMATA;
 
-        if ( $.isArray(schema) ) {
-            _.each(schema, function(el) {
-                if ( ! roleHash[el] )
+        if ($.isArray(schema)) {
+            _.each(schema, function (el) {
+                if (!roleHash[el])
                     roleHash[el] = {};
                 eachSchema(roleHash[el], typ, rsrcName, priv, stat);
             })
         }
         else {
-            if ( ! roleHash[schema] )
+            if (!roleHash[schema])
                 roleHash[schema] = {};
             eachSchema(roleHash[schema], typ, rsrcName, priv, stat);
         }
@@ -151,45 +137,45 @@ function Statuser() {
 
     function eachSchema(schHash, typ, rsrcName, priv, stat) {
 
-        if ( typ === '*' )
+        if (typ === '*')
             typ = ALL_PRIVS.keys();
 
-        if ( $.isArray(typ) ) {
-            _.each(typ, function(el) {
-                if ( ! schHash[el] )
+        if ($.isArray(typ)) {
+            _.each(typ, function (el) {
+                if (!schHash[el])
                     schHash[el] = {};
                 eachType(schHash[el], rsrcName, priv, stat);
             })
         }
         else {
-            if ( ! schHash[typ] )
+            if (!schHash[typ])
                 schHash[typ] = {};
             eachType(schHash[typ], typ, rsrcName, priv, stat);
         }
     }
 
-    function eachType( typHash, typ, rsrcName, priv, stat ) {
+    function eachType(typHash, typ, rsrcName, priv, stat) {
 
-        if ( priv === '*' )
+        if (priv === '*')
             priv = ALL_PRIVS[typ];
 
-        if ( $.isArray(priv) ) {
-            _.each(priv, function(el) {
-                if ( ! typHash[el] )
+        if ($.isArray(priv)) {
+            _.each(priv, function (el) {
+                if (!typHash[el])
                     typHash[el] = {};
                 eachPriv(typHash[el], rsrcName, stat);
             })
         }
         else {
-            if ( ! typHash[priv] )
+            if (!typHash[priv])
                 typHash[priv] = {};
             eachPriv(typHash[priv], rsrcName, stat);
         }
     }
 
-    function eachPriv( privHash, rsrcName, stat ) {
+    function eachPriv(privHash, rsrcName, stat) {
 
-        if ( ! privHash[rsrcName] )
+        if (!privHash[rsrcName])
             privHash[rsrcName] = stat;
         else {
             privHash[rsrcName] = strongest_of(privHash[rsrcName], stat);
@@ -198,16 +184,16 @@ function Statuser() {
 
     function strongest_of(stat0, stat1) {
 
-        var s = [ stat0, stat1 ],
-            ref = ['must','must-not','should','should-not'];
+        var s = [stat0, stat1],
+            ref = ['must', 'must-not', 'should', 'should-not'];
 
         _.each(ref, function (el) {
 
-            if ( _.contains(s, el))
+            if (_.contains(s, el))
                 return el;
         });
 
-        return 'something seriously wrong happened '+s.join(',');
+        return 'something seriously wrong happened ' + s.join(',');
     }
 
     _.each(MANDATORY, function (el) {
@@ -233,17 +219,17 @@ var statuser = new Statuser();
 function get_safety_flag_for_resource(schema, name, typ, role, priv, yes) {
 
     // returns 'warn', 'ok', or 'recommend'
-    var r = statuser.statusOf(schema,name,typ,role,priv),
+    var r = statuser.statusOf(schema, name, typ, role, priv),
         res = '';
 
-    if ( r === 'must' )
+    if (r === 'must')
         res = 'safety-mandate';
-    else if ( r === 'should' )
+    else if (r === 'should')
         res = yes ? '' : 'safety-rec';
-    else if ( r === 'should-not' )
+    else if (r === 'should-not')
         res = yes ? 'safety-warn' : '';
-    else if ( r === 'must-not' )
-       res = 'safety-ban';
+    else if (r === 'must-not')
+        res = 'safety-ban';
     return res || '';
 }
 
@@ -260,25 +246,45 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
 
     this.init_handlers = function (app) {
         // bind handlers to create button, and to form submit buttons
-        $('#permissionsBtn').click( function(){
+        $('#permissionsBtn').click(function () {
             app.setLocation('#/permissions');
         });
     };
 
-    var roleNamesDict = {'s' : 'super',
-                         'a' : 'auth',
-                         'p' : 'preauth',
-                         'r' : 'read'  };
+    var ROLE_NAMES_DICT = {
+            's': 'super',
+            'a': 'auth',
+            'p': 'preauth',
+            'r': 'read'
+        },
+
+        PRIV_CODES = {
+            'r': 'select',
+            'w': 'update',
+            'a': 'insert',
+            'd': 'delete',
+            'D': 'truncate',
+            'x': 'references',
+            't': 'trigger',
+            'X': 'execute',
+            'U': 'usage',
+            'C': 'create',
+            'c': 'connect',
+            'T': 'temporary',
+            '*': 'grnt'
+        };
 
 
     function evalPrivs(syms) {
         // arwdDxt
         var codes = _.chars(syms.split('/')[0]);
-        return _.map(codes, function(el) { return PRIV_CODES[el] });
+        return _.map(codes, function (el) {
+            return PRIV_CODES[el]
+        });
     }
 
 
-    function onChange ($panel) {
+    function onChange($panel) {
 
         var sqlQuery;
         style_table($panel);
@@ -292,20 +298,20 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
             var $pane = $('#permissions-sql-show');
             sqlQuery = buildSQLStatement($panel);
 
-            if ( sqlQuery )
+            if (sqlQuery)
                 $pane.text(sqlQuery);
             else
                 $pane.text('-- nothing to show');
         }
 
         function _postNotice() {
-            if ( $('.safety-warn',$panel).length )
-                rdbAdmin.showWorkingMessage('One or more privileges are displayed in red. '+
-                    'These are inappropriate to role or resource, and '+
+            if ($('.safety-warn', $panel).length)
+                rdbAdmin.showWorkingMessage('One or more privileges are displayed in red. ' +
+                    'These are inappropriate to role or resource, and ' +
                     'you should consider carefully whether you need them.');
-            else if ( ~sqlQuery.indexOf('TO public') )
-                rdbAdmin.showWorkingMessage('You have some privileges GRANTED to "public" for '+
-                    'tables or views.  This is discouraged, and these '+
+            else if (~sqlQuery.indexOf('TO public'))
+                rdbAdmin.showWorkingMessage('You have some privileges GRANTED to "public" for ' +
+                    'tables or views.  This is discouraged, and these ' +
                     'privileges will be removed when you save.');
             else
                 rdbAdmin.showWorkingMessage('');
@@ -317,27 +323,27 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
 
         var query = buildSQLStatement();
 
-        if ( query.length === 0 ) {
+        if (query.length === 0) {
             return false;
         }
 
         // functions to handle results of query submit
-        function errback (err,msg) {
-            rdbAdmin.showErrorMessage('<pre>'+err[0] + ':' + err[1]+'</pre>');
+        function errback(err, msg) {
+            rdbAdmin.showErrorMessage('<pre>' + err[0] + ':' + err[1] + '</pre>');
         }
 
         function callback(json) {
             that.show();
-          var ct = (json.row_count && json.row_count[1]) || 0;
-            rdbAdmin.showWorkingMessage('<pre>Success '+ct+'</pre>');
+            var ct = (json.row_count && json.row_count[1]) || 0;
+            rdbAdmin.showWorkingMessage('<pre>Success ' + ct + '</pre>');
             //$('#permissions-sql-show').text('');
         }
 
         // send query to engine, feed results to callback
         dbMgr.sqlEngine.query({
-            'q' : query,
-            'callback' : callback,
-            'errback' : errback
+            'q': query,
+            'callback': callback,
+            'errback': errback
         });
 
         return false;
@@ -357,53 +363,53 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
                 roles = [];
 
             // "{s0000000842=CTc/admin,r0000000842=c/admin,admin=CTc/admin}"
-            var connectPrivs = _.trim(dbRolesString,"{}").split(',');
+            var connectPrivs = _.trim(dbRolesString, "{}").split(',');
 
             _.each(connectPrivs, function (el) {
                 var priv = el.split('=')[0];
-                if ( /[a-zA-z]\d{10}/.test(priv))
-                    roles.push(roleNamesDict[priv[0]]);
+                if (/[a-zA-z]\d{10}/.test(priv))
+                    roles.push(ROLE_NAMES_DICT[priv[0]]);
             });
 
             var schemaData = {};
 
             _.each(resourceRoles.records.rows, function (row) {
                 // nm, schema, type, privs, owner
-                var nm = row[0], sch = row[1], typ = row[2], privStr=row[3], owner = row[4],
+                var nm = row[0], sch = row[1], typ = row[2], privStr = row[3], owner = row[4],
                     privs = {}, rec;
 
-                if ( privStr === null ) {
+                if (privStr === null) {
                     privs['super'] = ALL_PRIVS[typ];
                 }
 
                 else {
-                    var resourcePrivs = _.trim(privStr,"{}").split(',');
+                    var resourcePrivs = _.trim(privStr, "{}").split(',');
                     _.each(resourcePrivs, function (el) {
                         var privParts = el.split('='),
                             priv = privParts[0], codes = privParts[1],
                             rol;
-                        if ( /[a-zA-z]\d{10}/.test(priv) ) {
-                            rol = roleNamesDict[priv[0]];
+                        if (/[a-zA-z]\d{10}/.test(priv)) {
+                            rol = ROLE_NAMES_DICT[priv[0]];
                             privs[rol] = evalPrivs(codes);
                         }
-                        else if ( priv === '' ) {
+                        else if (priv === '') {
                             privs['_public_'] = evalPrivs(codes);
                         }
                     });
                 }
 
                 // put record into schemaData data aggregate
-                if ( ! schemaData[sch] )
-                  schemaData[sch] = {};
-                if ( ! schemaData[sch][typ] )
-                  schemaData[sch][typ] = [];
+                if (!schemaData[sch])
+                    schemaData[sch] = {};
+                if (!schemaData[sch][typ])
+                    schemaData[sch][typ] = [];
 
                 // remove schema-name from function long-name
-                if ( typ === 'function' ) {
+                if (typ === 'function') {
 
                     var parts = nm.split('.');
-                    if ( parts[0] === sch )
-                      nm = nm.substr(sch.length+1);
+                    if (parts[0] === sch)
+                        nm = nm.substr(sch.length + 1);
                 }
 
                 // create record
@@ -417,9 +423,13 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
             style_table($panel);
 
             // add change handler to respond to changes
-            $panel.on('change', function () { onChange($panel) });
-            $panel.find('#permissions-save-btn').click( saveFunction );
-            setTimeout(function() { $panel.change() }, 1);
+            $panel.on('change', function () {
+                onChange($panel)
+            });
+            $panel.find('#permissions-save-btn').click(saveFunction);
+            setTimeout(function () {
+                $panel.change()
+            }, 1);
 
             // later
             rdbAdmin.onStopQueryExecution();
@@ -432,55 +442,55 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
     // build_table - builds table, with provided data
     function build_table($panel, roles, schemaData) {
 
-        var $tHead = $('thead',$panel),
-            $tHdrRow = $('tr:first',$tHead);
+        var $tHead = $('thead', $panel),
+            $tHdrRow = $('tr:first', $tHead);
 
         // put aprop captions in table header
         _.each(ALL_ROLES, function (rol) {
-           $('.'+rol+'-role',$tHead).text(_.include(roles,rol) ? rol.toUpperCase() : rol);
+            $('.' + rol + '-role', $tHead).text(_.include(roles, rol) ? rol.toUpperCase() : rol);
         });
 
         // capture body and sample rows
-        var $tBody = $('tbody',$panel),
-            $tblRow = $('.perm-row',$tBody).remove().first(),
-            $subHdrRow = $('.sub-row',$tBody).remove().first();
+        var $tBody = $('tbody', $panel),
+            $tblRow = $('.perm-row', $tBody).remove().first(),
+            $subHdrRow = $('.sub-row', $tBody).remove().first();
         $tBody.empty();
 
         // injects html into html row, to represent 'priv' for 'role'
         //  'sel' indicates whether priv has been granted
         //
-        function inject_priv_span(priv,rol,$tRow,sel) {
+        function inject_priv_span(priv, rol, $tRow, sel) {
 
-            var $cell = $tRow.find('.'+rol+'-role:first'),
+            var $cell = $tRow.find('.' + rol + '-role:first'),
                 $superLbl = $('<label><input type="checkbox" value="on"><input type="hidden"><span></span></label>'),
-                $cBox = $('input:checkbox',$superLbl),
-                $prevVal = $('input:hidden',$superLbl);
+                $cBox = $('input:checkbox', $superLbl),
+                $prevVal = $('input:hidden', $superLbl);
             if (sel) {
-                $cBox.prop('checked',true);
+                $cBox.prop('checked', true);
                 $prevVal.val('on')
             }
-            $cBox.attr('name', rol+'-'+priv);
-            $prevVal.attr('name', rol+'-'+priv);
+            $cBox.attr('name', rol + '-' + priv);
+            $prevVal.attr('name', rol + '-' + priv);
             $superLbl.find('span').text(priv);
             $cell.append($superLbl);
         }
 
         // puts collection of privs into an html row
         //
-        function add_priv_spans_to_row(privHash,$tRow,typ) {
+        function add_priv_spans_to_row(privHash, $tRow, typ) {
 
             var rolPrivs;
 
             // put html markup into given row, for given privs
             //
-            _.each(ALL_ROLES, function(rol) {
+            _.each(ALL_ROLES, function (rol) {
 
-                if ( _.contains(roles,rol) ) {
+                if (_.contains(roles, rol)) {
 
                     rolPrivs = privHash[rol] || []; // array of privs
                     _.each(ALL_PRIVS[typ], function (priv) {
 
-                        inject_priv_span(priv,rol,$tRow,_.contains(rolPrivs,priv));
+                        inject_priv_span(priv, rol, $tRow, _.contains(rolPrivs, priv));
                     });
                 }
             });
@@ -488,33 +498,33 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
             // put markup into hidden '_public_' column, to record
             //  privs granted (somehow) to postgres 'public' role
             //
-            if ( privHash['_public_'] ) {
+            if (privHash['_public_']) {
 
                 rolPrivs = privHash['_public_'];
                 _.each(rolPrivs, function (priv) {
 
-                    inject_priv_span(priv,'_public_',$tRow,true);
+                    inject_priv_span(priv, '_public_', $tRow, true);
                 });
             }
 
             // clear any checkboxes in the _public_ column, so only hidden
             //  prevVal fields persist
             //
-            $('td._public_-role input:checkbox',$tRow).prop('checked',false);
-            $('th._public_-role input:checkbox',$tRow).prop('checked',false);
+            $('td._public_-role input:checkbox', $tRow).prop('checked', false);
+            $('th._public_-role input:checkbox', $tRow).prop('checked', false);
 
             // disable check boxes in super column
             //
-            $('td.super-role input:checkbox',$tRow).attr('disabled',true);
-            $('th.super-role input:checkbox',$tRow).attr('disabled',true);
+            $('td.super-role input:checkbox', $tRow).attr('disabled', true);
+            $('th.super-role input:checkbox', $tRow).attr('disabled', true);
 
             // disable insert|update|delete checkboxes in read column
             //  after forcing off
             //
-            var $tdR = $("td.read-role label:has(span:contains('insert'))",$tRow)
-                .add("td.read-role label:has(span:contains('update'))",$tRow)
-                .add("td.read-role label:has(span:contains('delete'))",$tRow);
-            $tdR.find('input:checkbox').attr('disabled',true).prop('checked',false);
+            var $tdR = $("td.read-role label:has(span:contains('insert'))", $tRow)
+                .add("td.read-role label:has(span:contains('update'))", $tRow)
+                .add("td.read-role label:has(span:contains('delete'))", $tRow);
+            $tdR.find('input:checkbox').attr('disabled', true).prop('checked', false);
 
         }
 
@@ -536,14 +546,14 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
             $tSubHdr.find('th').text(' ');
 
             var $thFirst = $tSubHdr.find('th:first');
-            $thFirst.text('Schema: '+schName);
+            $thFirst.text('Schema: ' + schName);
 
             $thFirst.append('<input type="hidden" name="type">');
             $thFirst.find('input[name=type]').val(typ);
             $thFirst.append('<input type="hidden" name="schema">');
             $thFirst.find('input[name=schema]').val(schName);
 
-            add_priv_spans_to_row(privHash,$tSubHdr,typ);
+            add_priv_spans_to_row(privHash, $tSubHdr, typ);
 
             $tBody.append($tSubHdr);
         }
@@ -574,18 +584,18 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
             $tdFirst.append('<input type="hidden" name="schema">');
             $tdFirst.find('input[name=schema]').val(schName);
 
-            add_priv_spans_to_row(tPrivs,$tRow,typ);
+            add_priv_spans_to_row(tPrivs, $tRow, typ);
 
             $tBody.append($tRow);
         }
 
         /*
-          iterate over schemata in schemaData
+         iterate over schemata in schemaData
          */
-        _.each(schemaData, function(dta, schemaName) {
+        _.each(schemaData, function (dta, schemaName) {
 
             // add line to html table for schema privs
-            if ( schemaName === 'public' ) {
+            if (schemaName === 'public') {
                 add_public_header();
             }
             else {
@@ -594,37 +604,37 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
             }
 
             // handle tables in schema, one row per table
-            if ( dta.table ) {
+            if (dta.table) {
                 add_sub_sub_header('tables');
                 var tables = dta.table;
-                _.each(tables, function(tblData) {
+                _.each(tables, function (tblData) {
                     add_table_row(tblData);
                 })
             }
 
             // handle views in schema, one row per view
-            if ( dta.view ) {
+            if (dta.view) {
                 add_sub_sub_header('views');
                 var views = dta.view;
-                _.each(views, function(tblData) {
+                _.each(views, function (tblData) {
                     add_table_row(tblData);
                 })
             }
 
             // handle sequences in schema, one row per seq
-            if ( dta.sequence ) {
+            if (dta.sequence) {
                 add_sub_sub_header('sequences');
                 var sequences = dta.view;
-                _.each(sequences, function(tblData) {
+                _.each(sequences, function (tblData) {
                     add_table_row(tblData);
                 })
             }
 
             // handle functions in schema, one row per function
-            if ( dta.function ) {
+            if (dta.function) {
                 add_sub_sub_header('functions');
                 var functs = dta.function;
-                _.each(functs, function(tblData) {
+                _.each(functs, function (tblData) {
                     add_table_row(tblData);
                 })
             }
@@ -638,48 +648,48 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
     function style_table($panel) {
 
         // capture body and sample row
-        var $tBody = $('tbody',$panel);
+        var $tBody = $('tbody', $panel);
 
-        var $allResources = $('tr:has(td:first-child input:hidden)',$tBody)
-                            .add('tr:has(th:first-child input:hidden)',$tBody);
-        $allResources.each( function(i, row) {
+        var $allResources = $('tr:has(td:first-child input:hidden)', $tBody)
+            .add('tr:has(th:first-child input:hidden)', $tBody);
+        $allResources.each(function (i, row) {
 
             var $row = $(row),
                 $firstCell = $row.find('td:first');
-            if ( ! $firstCell.length )
+            if (!$firstCell.length)
                 $firstCell = $row.find('th:first');
             var resourceName = $firstCell.text(),
                 resourceType = $firstCell.find('input[name="type"]').val(),
                 resourceSchema = $firstCell.find('input[name="schema"]').val();
-            if ( resourceType === 'schema' )
+            if (resourceType === 'schema')
                 resourceName = resourceSchema;
 
-            var $allLabels = $('label',$row);
-            $allLabels.each(function(i, lbl) {
+            var $allLabels = $('label', $row);
+            $allLabels.each(function (i, lbl) {
 
                 var $lbl = $(lbl),
-                    newVal = !!$('input:checkbox',$lbl).prop('checked'),
+                    newVal = !!$('input:checkbox', $lbl).prop('checked'),
                     $text = $lbl.find('span');
 
-                var roleNPriv = $('input:hidden',$lbl).attr('name').split('-'),
+                var roleNPriv = $('input:hidden', $lbl).attr('name').split('-'),
                     role = roleNPriv[0],
                     priv = roleNPriv[1];
-                $text.text( newVal ? priv.toUpperCase() : priv.toLowerCase() );
+                $text.text(newVal ? priv.toUpperCase() : priv.toLowerCase());
 
                 $text.removeClass('safety-ok safety-warn safety-rec');
                 var flag = get_safety_flag_for_resource(resourceSchema, resourceName, resourceType,
-                                                        role, priv, newVal);
-                if ( flag.length ) {
+                    role, priv, newVal);
+                if (flag.length) {
                     switch (flag) {
                         case 'safety-mandate':
-                            if ( ! newVal )
+                            if (!newVal)
                                 $text.addClass('safety-rec');
                             break;
                         case 'safety-rec':
                             $text.addClass('safety-rec');
                             break;
                         case 'safety-ban':
-                            if ( newVal )
+                            if (newVal)
                                 $text.addClass('safety-warn');
                             break;
                         case 'safety-warn':
@@ -697,43 +707,43 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
     function preset_table($panel) {
 
         // capture body
-        var $tBody = $('tbody',$panel);
+        var $tBody = $('tbody', $panel);
 
-        var $allResources = $('tr:has(td:first-child input:hidden)',$tBody)
-            .add('tr:has(th:first-child input:hidden)',$tBody);
-        $allResources.each( function(i, row) {
+        var $allResources = $('tr:has(td:first-child input:hidden)', $tBody)
+            .add('tr:has(th:first-child input:hidden)', $tBody);
+        $allResources.each(function (i, row) {
 
             var $row = $(row),
                 $firstCell = $row.find('td:first');
-            if ( ! $firstCell.length )
+            if (!$firstCell.length)
                 $firstCell = $row.find('th:first');
             var resourceName = $firstCell.text(),
                 resourceType = $firstCell.find('input[name="type"]').val(),
                 resourceSchema = $firstCell.find('input[name="schema"]').val();
-            if ( resourceType === 'schema' )
+            if (resourceType === 'schema')
                 resourceName = resourceSchema;
 
-            var $allLabels = $('label',$row);
-            $allLabels.each(function(i, lbl) {
+            var $allLabels = $('label', $row);
+            $allLabels.each(function (i, lbl) {
 
                 var $lbl = $(lbl),
-                    $cBox = $('input:checkbox',$lbl),
+                    $cBox = $('input:checkbox', $lbl),
                     $text = $lbl.find('span'),
-                    roleNPriv = $('input:hidden',$lbl).attr('name').split('-'),
+                    roleNPriv = $('input:hidden', $lbl).attr('name').split('-'),
                     role = roleNPriv[0],
                     priv = roleNPriv[1];
 
                 var flag = get_safety_flag_for_resource(resourceSchema, resourceName, resourceType,
                     role, priv, !!$cBox.prop('checked'));
-                if ( flag.length ) {
+                if (flag.length) {
                     switch (flag) {
                         case 'safety-mandate':
-                            $cBox.prop('checked',true);
-                            $cBox.attr('disabled',true);
+                            $cBox.prop('checked', true);
+                            $cBox.attr('disabled', true);
                             break;
                         case 'safety-ban':
-                            $cBox.prop('checked',false);
-                            $cBox.attr('disabled',true);
+                            $cBox.prop('checked', false);
+                            $cBox.attr('disabled', true);
                             break;
                     }
                 }
@@ -747,77 +757,77 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
             acctNum = dbMgr.sqlEngine.userName().substring(1);
 
         function true_role_name(rName) {
-            return rName.charAt(0)+acctNum;
+            return rName.charAt(0) + acctNum;
         }
 
         function grant_priv(priv, role, typ, sch, name) {
             var q;
-            if ( typ === 'function' )
-                q = 'GRANT '+priv.toUpperCase()+' ON '+typ.toUpperCase()+
-                    ' "'+sch+'".'+name+' TO '+true_role_name(role);
-            else if ( typ === 'schema' )
-                q = 'GRANT '+priv.toUpperCase()+' ON '+typ.toUpperCase()+
-                    ' "'+sch+'" TO '+true_role_name(role);
-            else if ( typ === 'view' )
-                q = 'GRANT '+priv.toUpperCase()+' ON '+'/* VIEW */'+
-                    ' "'+sch+'"."'+name+'" TO '+true_role_name(role);
+            if (typ === 'function')
+                q = 'GRANT ' + priv.toUpperCase() + ' ON ' + typ.toUpperCase() +
+                    ' "' + sch + '".' + name + ' TO ' + true_role_name(role);
+            else if (typ === 'schema')
+                q = 'GRANT ' + priv.toUpperCase() + ' ON ' + typ.toUpperCase() +
+                    ' "' + sch + '" TO ' + true_role_name(role);
+            else if (typ === 'view')
+                q = 'GRANT ' + priv.toUpperCase() + ' ON ' + '/* VIEW */' +
+                    ' "' + sch + '"."' + name + '" TO ' + true_role_name(role);
             else
-                q = 'GRANT '+priv.toUpperCase()+' ON '+typ.toUpperCase()+
-                    ' "'+sch+'"."'+name+'" TO '+true_role_name(role);
+                q = 'GRANT ' + priv.toUpperCase() + ' ON ' + typ.toUpperCase() +
+                    ' "' + sch + '"."' + name + '" TO ' + true_role_name(role);
             sql.push(q);
         }
 
         function revoke_priv(priv, role, typ, sch, name) {
             var roleName, q;
-            if ( role === '_public_' )
+            if (role === '_public_')
                 roleName = 'public';
             else
                 roleName = true_role_name(role);
-            if ( typ === 'function' )
-                q = 'REVOKE '+priv.toUpperCase()+' ON '+typ.toUpperCase()+
-                    ' "'+sch+'".'+name+' FROM '+roleName;
-            else if ( typ === 'view' )
-                q = 'REVOKE '+priv.toUpperCase()+' ON '+'/* VIEW */'+
-                    ' "'+sch+'"."'+name+'" FROM '+roleName;
+            if (typ === 'function')
+                q = 'REVOKE ' + priv.toUpperCase() + ' ON ' + typ.toUpperCase() +
+                    ' "' + sch + '".' + name + ' FROM ' + roleName;
+            else if (typ === 'view')
+                q = 'REVOKE ' + priv.toUpperCase() + ' ON ' + '/* VIEW */' +
+                    ' "' + sch + '"."' + name + '" FROM ' + roleName;
             else
-                q = 'REVOKE '+priv.toUpperCase()+' ON '+typ.toUpperCase()+
-                ' "'+sch+'"."'+name+'" FROM '+roleName;
+                q = 'REVOKE ' + priv.toUpperCase() + ' ON ' + typ.toUpperCase() +
+                    ' "' + sch + '"."' + name + '" FROM ' + roleName;
             sql.push(q);
         }
 
-        var $allResources = $('tr:has(td:first-child input:hidden)',$panel)
-                            .add('tr:has(th:first-child input:hidden)',$panel);
-        $allResources.each( function(i, row) {
+        var $allResources = $('tr:has(td:first-child input:hidden)', $panel)
+            .add('tr:has(th:first-child input:hidden)', $panel);
+        $allResources.each(function (i, row) {
 
             var $row = $(row),
                 $firstCell = $row.find('td:first');
-            if ( ! $firstCell.length )
+            if (!$firstCell.length)
                 $firstCell = $row.find('th:first');
 
             var resourceName = $firstCell.text(),
                 resourceType = $firstCell.find('input[name="type"]').val(),
                 resourceSchema = $firstCell.find('input[name="schema"]').val();
-            if ( resourceType === 'schema' )
+            if (resourceType === 'schema')
                 resourceName = resourceSchema;
 
-            var $allLabels = $('label',$row);
-            $allLabels.each(function(i, lbl) {
+            var $allLabels = $('label', $row);
+            $allLabels.each(function (i, lbl) {
                 var $lbl = $(lbl),
-                    prevVal = !!$('input:hidden',$lbl).val(),
-                    newVal = !!$('input:checkbox',$lbl).prop('checked');
+                    prevVal = !!$('input:hidden', $lbl).val(),
+                    newVal = !!$('input:checkbox', $lbl).prop('checked');
 
-                if ( newVal !== prevVal  ){
-                    var roleNPriv = $('input:hidden',$lbl).attr('name').split('-'),
+                if (newVal !== prevVal) {
+                    var roleNPriv = $('input:hidden', $lbl).attr('name').split('-'),
                         role = roleNPriv[0],
                         priv = roleNPriv[1];
-                    if ( newVal ) {
+                    if (newVal) {
                         grant_priv(priv, role, resourceType, resourceSchema, resourceName);
                     }
-                    else if ( prevVal ) {
-                        if ( role !== '_public_' )
+                    else if (prevVal) {
+                        if (role !== '_public_')
                             revoke_priv(priv, role, resourceType, resourceSchema, resourceName);
                         else {
-                            if ( _.contains(['table','view'], resourceType ) ) {
+                            if (_.contains(['table', 'view'], resourceType)) {
                                 revoke_priv(priv, role, resourceType, resourceSchema, resourceName);
                             }
                         }

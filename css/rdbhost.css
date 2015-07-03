@@ -48,6 +48,10 @@ code{
 span.btn,span.btn_hover{cursor:pointer;font-weight:bold}
 span.btn_hover{color:#8C315A}
 #sel-table_pager{margin:.5em 0 1em}
+.null-data {color: darkred}
+.data-table-header-time {border-bottom-color: saddlebrown}
+.data-table-header-boolean {border-bottom-color: sandybrown}
+.data-table-header-number {border-bottom-color: rosybrown}
 button,input[type=button], input[type=submit], #sel-table_pager span.txtbtn, #sel-table_pager b span {
     border-width:1px;
     border-style:solid;
