@@ -14,6 +14,9 @@ function DataDisplayer(rdbAdmin)
         "/": '&#x2F;'
     };
 
+    var this_ = this;
+    this.dataWasTruncated = undefined;
+
     function escapeHtml(str) {
         return String(str).replace(/[&<>"'\/]/g, function (s) {
             return entityMap[s];
@@ -21,17 +24,23 @@ function DataDisplayer(rdbAdmin)
     }
 
     function escapeLenLimit(str, lim) {
-        if (lim === undefined || lim < 200) {
+        if (lim === undefined)
+            return escapeHtml(str);
+
+        if (lim < 200)
             lim = 500;
-        }
-        if (str.length > lim)
+
+        if (str.length > lim){
+
+            this_.dataWasTruncated = true;
             return escapeHtml(str.substr(0, 250)) + '<span class=null-data>.....................</span>'
                 + escapeHtml(str.substr(str.length-150));
+        }
         return escapeHtml(str)
     }
 
 
-    function reformat(cellData) {
+    function reformat(cellData, noTruncate) {
 
         var $cell, tmpArray, $t;
         if (cellData === null) {
@@ -47,7 +56,7 @@ function DataDisplayer(rdbAdmin)
                 tmpArray = [$('<span class=null-data>{</span>')];
                 for (var cD in cellData) {
 
-                    tmpArray.push(reformat(cellData[cD]));
+                    tmpArray.push(reformat(cellData[cD], noTruncate));
                     tmpArray.push($('<span class=null-data>, </span>'));
                 }
                 tmpArray.push($('<span class=null-data>}</span>'));
@@ -63,7 +72,8 @@ function DataDisplayer(rdbAdmin)
             }
         }
         else {
-            return escapeLenLimit(cellData);
+            var lim = noTruncate ? Math.pow(10,10) : 500;
+            return escapeLenLimit(cellData, lim);
         }
     }
 
@@ -97,6 +107,9 @@ function DataDisplayer(rdbAdmin)
 
         var $table = $('#' + tableId),
             $tr, $cell;
+
+        // reset truncation flag, maybe set by reformat
+        this.dataWasTruncated = false;
 
         // empty the table
         $table.empty();
@@ -135,7 +148,7 @@ function DataDisplayer(rdbAdmin)
                     for (var j in row) {
 
                         $cell = this.$bodyCell.clone();
-                        $cell.html(reformat(row[j]));
+                        $cell.html(reformat(row[j], fullRecs));
                         $tr.append($cell);
                     }
 

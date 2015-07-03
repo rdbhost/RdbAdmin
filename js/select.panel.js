@@ -106,6 +106,11 @@ function SelectPanel(rdbAdmin, databaseManager, sqlPanel, dataDisplayer) {
         $(':input', $form).change(function (ev) {
             updateSQL();
         });
+        // toggle control fieldset boxes hidden/nothidden
+        $('#select-full-values', $form).change(function (ev) {
+            buildTable();
+            ev.stopPropagation();
+        });
     };
 
     function updateSQL() {
@@ -358,9 +363,14 @@ function SelectPanel(rdbAdmin, databaseManager, sqlPanel, dataDisplayer) {
             $('.no-primary-key-note', $panel)[(listIsEditable || isView) ? 'hide' : 'show']();
             $('.only-view-note', $panel)[isView ? 'show' : 'hide']();
 
-            var fullRecs = false;  // todo - set this meaningfully
+            var fullRecs = $('#select-full-values').is(':checked');
             fillSelectControls(insertAllowed, deleteAllowed);
             dataDisplayer.show(tableId, json.records.header, json.records.rows || [], listIsEditable, fullRecs);
+
+            if (dataDisplayer.dataWasTruncated || fullRecs)
+                $('#select-full-value-checkbox').show();
+            else
+                $('#select-full-value-checkbox').hide();
 
             reveal();
         }
