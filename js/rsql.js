@@ -39,22 +39,22 @@ function quoteIdentifier(name) {
         return simple(name);
 }
 
+// dict of aliases of type names
+//
+var alias = {
+    'int2': 'smallint',
+    'int4': 'integer',
+    'int8': 'bigint',
+    'bool': 'boolean',
+    'float4': 'real',
+    'float8': 'real',
+    'float16': 'double precision',
+    'bpchar': 'character'
+};
+
 // DatabaseManager that uses an SQLEngine object for database access
 //
 function DatabaseManager(sqlEngine) {
-
-    // dict of aliases of type names
-    //
-    var alias = {
-        'int2': 'smallint',
-        'int4': 'integer',
-        'int8': 'bigint',
-        'bool': 'boolean',
-        'float4': 'real',
-        'float8': 'real',
-        'float16': 'double precision',
-        'bpchar': 'character'
-    };
 
     this.sqlEngine = sqlEngine;
 
@@ -749,7 +749,7 @@ function ResourceMeta(tName) {
             return ['public', name];
         }
     }
-    
+
     var tableName = "",
         schemaName = "",
         comment = "",
