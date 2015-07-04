@@ -81,6 +81,7 @@ function SelectPanel(rdbAdmin, databaseManager, sqlPanel, dataDisplayer) {
             buildTable();
             ev.stopPropagation();
         });
+/*
         $form.on('change', '#select-panel-select-div .sel-panel-functions, #select-panel-select-div .sel-table-fields',
             function (ev) {
                 add_row(this);
@@ -96,6 +97,7 @@ function SelectPanel(rdbAdmin, databaseManager, sqlPanel, dataDisplayer) {
                 add_row(this);
                 ev.stopPropagation();
             });
+*/
         // toggle control fieldset boxes hidden/nothidden
         $('fieldset legend', $form).click(function (ev) {
             $(this).closest('fieldset').children('*:not(legend)').toggle();
@@ -106,6 +108,7 @@ function SelectPanel(rdbAdmin, databaseManager, sqlPanel, dataDisplayer) {
         $(':input', $form).change(function (ev) {
             updateSQL();
         });
+
         // redo results display when full-values checkbox gets toggles
         $('#select-full-values', $form).change(function (ev) {
             buildTable();
@@ -114,19 +117,23 @@ function SelectPanel(rdbAdmin, databaseManager, sqlPanel, dataDisplayer) {
     };
 
     function updateSQL() {
+
         var queryRes = buildQuery(false); // not count
         var $panel = $('#' + that.panelId);
         $('#sel-panel_jush-sql', $panel).html(queryRes.query);
     }
 
     function createPrimKeyValueList(domel) {
+
         var rI = $(domel).parents('tr:first').get(0).rowIndex,
             row = data.rows[parseInt(rI, 10) - 1],
             keyVals = [];
+
         for (var k in keyFieldIndexes) {
             keyVals.push(keyFieldIndexes[k][1].columnName);
             keyVals.push(row[keyFieldIndexes[k][0]]);
         }
+
         return keyVals;
     }
 
@@ -267,6 +274,7 @@ function SelectPanel(rdbAdmin, databaseManager, sqlPanel, dataDisplayer) {
     function add_row(field) {
 
         // check if this row is the last - if isn't - return false
+        //
         var $span = $(field).closest('span');
         if ($span.nextAll('span:first').length !== 0)
             return false;
@@ -274,6 +282,7 @@ function SelectPanel(rdbAdmin, databaseManager, sqlPanel, dataDisplayer) {
         var $newspan = $span.clone();
 
         // clean selects in cloned row
+        //
         var selects = $newspan.find('select');
         for (var i = 0; i < selects.length; i += 1) {
 
