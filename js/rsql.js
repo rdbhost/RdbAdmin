@@ -67,26 +67,6 @@ function DatabaseManager(sqlEngine) {
         window.console.log(err[0] + ':' + err[1]);
     }
 
-    // split table name
-    //
-    function splitTableName(name) {
-
-        assert(name, 'name to be split is falsy');
-        var delim = (name.substr(0, 1) === '"') ? '"."' : '.',
-            sNtN;
-        if (name.indexOf(delim) >= 0) {
-            sNtN = name.split(delim);
-            if (delim.substr(0, 1) === '"') {
-                sNtN[0] = sNtN[0] + '"';
-                sNtN[1] = '"' + sNtN[1];
-            }
-            return [sNtN[0], sNtN[1]];
-        }
-        else {
-            return ['public', name];
-        }
-    }
-
     var queryTableNames = "SELECT tablename, schemaname FROM pg_tables                              " +
         "WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema'  ";
     this.getTableNames = function (display) {
@@ -749,12 +729,34 @@ function DatabaseManager(sqlEngine) {
 //   contains SQLColumn elements
 //
 function ResourceMeta(tName) {
+
+    // split table name
+    //
+    function splitTableName(name) {
+
+        assert(name, 'name to be split is falsy');
+        var delim = (name.substr(0, 1) === '"') ? '"."' : '.',
+            sNtN;
+        if (name.indexOf(delim) >= 0) {
+            sNtN = name.split(delim);
+            if (delim.substr(0, 1) === '"') {
+                sNtN[0] = sNtN[0] + '"';
+                sNtN[1] = '"' + sNtN[1];
+            }
+            return [sNtN[0], sNtN[1]];
+        }
+        else {
+            return ['public', name];
+        }
+    }
+    
     var tableName = "",
         schemaName = "",
         comment = "",
         fields = [];
 
     this.nameResource = function (arg0, arg1) {
+
         if (arg1) {
             schemaName = arg0;
             if (schemaName === "")
