@@ -84,6 +84,8 @@ function Statuser() {
         statusTree = {};
 
     this.ALL_PRIVS = ALL_PRIVS;
+    this.ALL_ROLES = ALL_ROLES;
+
     /*
      statusTree = { 'roleX' :
      {  'schemaX' :
@@ -447,7 +449,7 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
             $tHdrRow = $('tr:first', $tHead);
 
         // put aprop captions in table header
-        _.each(ALL_ROLES, function (rol) {
+        _.each(statuser.ALL_ROLES, function (rol) {
             $('.' + rol + '-role', $tHead).text(_.include(roles, rol) ? rol.toUpperCase() : rol);
         });
 
@@ -484,7 +486,7 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
 
             // put html markup into given row, for given privs
             //
-            _.each(ALL_ROLES, function (rol) {
+            _.each(statuser.ALL_ROLES, function (rol) {
 
                 if (_.contains(roles, rol)) {
 
