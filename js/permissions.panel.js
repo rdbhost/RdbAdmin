@@ -83,6 +83,7 @@ function Statuser() {
     // object to gather
         statusTree = {};
 
+    this.ALL_PRIVS = ALL_PRIVS;
     /*
      statusTree = { 'roleX' :
      {  'schemaX' :
@@ -379,7 +380,7 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
                     privs = {}, rec;
 
                 if (privStr === null) {
-                    privs['super'] = ALL_PRIVS[typ];
+                    privs['super'] = statuser.ALL_PRIVS[typ];
                 }
 
                 else {
@@ -488,7 +489,7 @@ function PermissionsPanel(rdbAdmin, dbMgr) {
                 if (_.contains(roles, rol)) {
 
                     rolPrivs = privHash[rol] || []; // array of privs
-                    _.each(ALL_PRIVS[typ], function (priv) {
+                    _.each(statuser.ALL_PRIVS[typ], function (priv) {
 
                         inject_priv_span(priv, rol, $tRow, _.contains(rolPrivs, priv));
                     });
