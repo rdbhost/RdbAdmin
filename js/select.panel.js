@@ -352,7 +352,7 @@ function SelectPanel(rdbAdmin, databaseManager, sqlPanel, dataDisplayer) {
 
         var insertAllowed = !isView && queryObj.isFullRecord,
             listIsEditable = insertAllowed && keyFieldIndexes.length > 0,
-            deleteAllowed;
+            deleteAllowed = listIsEditable;
 
         // querying
         function successcb(json) {
