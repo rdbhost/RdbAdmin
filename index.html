@@ -11,8 +11,8 @@
   <style type="text/css" id="usercss">@import url("css/rdbhost.css");</style>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"> </script>
-  <script type="text/javascript" src="https://www.rdbhost.com/vendor/underscore/underscore-min.js"> </script>
-  <script type="text/javascript" src="https://www.rdbhost.com/vendor/underscore/underscore.string.min.js"> </script>
+  <script type="text/javascript" src="https://www.rdbhost.com/mbr-assets/js/underscore-min.js"> </script>
+  <script type="text/javascript" src="https://www.rdbhost.com/mbr-assets/js/underscore.string.min.js"> </script>
   <script type="text/javascript" src="sammy/sammy.js" charset="utf-8"> </script>
   <script type="text/javascript" src="https://www.rdbhost.com/vendor/easyxdm/easyXDM.debug.js"></script>
   <script type="text/javascript" src="https://www.rdbhost.com/vendor/rdbhost/1.2/jquery.rdbhost.js"> </script>
@@ -599,9 +599,6 @@
             <input type="hidden" value="" id="cap-oldSchemaName" />
             <input type="hidden" value="" id="cap-oldTableName" />
             <input type="hidden" value="" id="alter-table-all-fields" /></p>
-
-          <h5>RdbHost recommends lowercasing all names to avoid issues with case-folding by the database.</h5>
-
           <table cellspacing="0" cellpadding="2" border="0" id="alter-table-details"
                  summary="alter table details">
             <thead>
@@ -759,7 +756,7 @@
                 </td>
                 <td>
                   <input type="image" title="Remove row"
-                         src="imgs/minus.gif" class="alter_constraint_del_row" />
+						 src="imgs/minus.gif" class="alter_constraint_del_row" />
                 </td>
               </tr>
               <tr style="display:none;" id="aconstraint-tr-prior_">
@@ -848,7 +845,7 @@
                 </td>
                 <td>
                   <input type="image" title="Remove row"
-                         src="imgs/minus.gif" class="alter_trigger_del_row" />
+						 src="imgs/minus.gif" class="alter_trigger_del_row" />
                 </td>
               </tr>
               <tr style="display:none;" id="atrigger-tr-prior_">

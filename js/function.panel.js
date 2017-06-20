@@ -193,7 +193,6 @@ function FunctionPanel(rdbAdmin, databaseManager, sqlPanel, receditPanel) {
 
                 // definition
                 $('#function-definition').val(stripLeftIndent(definition.replace(/%/g, '%%')));
-                $('#function-return-setof').prop('checked', retIsSet);
                 $('#' + {'v': 'volatile', 's': 'stable', 'i': 'immutable'}[volatil]).prop('checked', true);
                 $('#' + (secDefiner ? 'definer' : 'invoker')).prop('checked', true);
                 $('#' + (isStrict ? 'strict' : 'nullok')).prop('checked', true);
@@ -212,6 +211,7 @@ function FunctionPanel(rdbAdmin, databaseManager, sqlPanel, receditPanel) {
                 }
 
                 // set return type
+                $('#function-return-setof').prop('checked', retIsSet);
                 var retType = typeInfo[i][1], newOpt;
                 $panel.find('#function-ftype_999999').val(retType);
                 if ($panel.find('#function-ftype_999999').val() !== retType) {
@@ -423,6 +423,8 @@ function FunctionPanel(rdbAdmin, databaseManager, sqlPanel, receditPanel) {
             .replace('~nm~', nm)
             .replace('~typ~', typ)
             .replace('~len~', length);
+        if (data.substr(0,1) === ' ')
+            data = data.substr(1);
         return data;
     }
 
@@ -490,7 +492,7 @@ function FunctionPanel(rdbAdmin, databaseManager, sqlPanel, receditPanel) {
             status = 'edit-needed';
         }
         // traversing through parameters
-        var params = [];
+        var params = [], tableParams = [];
         $body.find('tr[id^="function-param-tr_"]').each(function () {
             // for each html row
             var $row = $(this),
@@ -514,18 +516,28 @@ function FunctionPanel(rdbAdmin, databaseManager, sqlPanel, receditPanel) {
                 status = 'edit-needed';
             }
             // create param string and add to params list
-            params.push(make_param_string(mod, pname, parmtype, length));
+            if (mod == 'TABLE')
+                tableParams.push(make_param_string('', pname, parmtype, length));
+            else
+                params.push(make_param_string(mod, pname, parmtype, length));
             return true;
         });
 
         // get various data fields from form
         var returns = $body.find('#function-ftype_999999').val(),
-            retLength = $body.find('#function-param-length_999999').val();
-        if (retLength) {
-            returns = returns + '(' + retLength + ')';
+            retLength = $body.find('#function-param-length_999999').val(),
+            retTableElements = [];
+        if (tableParams.length) {
+
+            returns = 'TABLE(' + tableParams.join(', ') + ')';
         }
-        if (retIsSet) {
-            returns = 'SETOF ' + returns;
+        else {
+            if (retLength) {
+                returns = returns + '(' + retLength + ')';
+            }
+            if (retIsSet) {
+                returns = 'SETOF ' + returns;
+            }
         }
 
         // if any 'non-specific' types used, mark as edit-needed
