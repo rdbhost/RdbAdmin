@@ -202,7 +202,7 @@ function FunctionPanel(rdbAdmin, databaseManager, sqlPanel, receditPanel) {
                 // add function params to html table
                 var $rowRef = $('#function-param-tr_');
                 for (var i = 0; i < typeInfo.length - 1; i += 1) {
-                    var aMod = {'o': 'OUT', 'i': 'IN', 'b': 'INOUT'}[argModes[i]];
+                    var aMod = {'o': 'OUT', 'i': 'IN', 'b': 'INOUT', 'v': 'VARIADIC', 't': 'TABLE'}[argModes[i]];
                     var vals = {
                         ftype: typeInfo[i][1],
                         pname: argNames[i],
@@ -579,7 +579,7 @@ function FunctionPanel(rdbAdmin, databaseManager, sqlPanel, receditPanel) {
             return false;
         }
 
-        var sql = "DROP FUNCTION " + funcMeta.getQuotedFunctionName();
+        var sql = "DROP FUNCTION " + funcMeta.qualResourceName();
         // functions to handle results of query submit
         function errback(err) {
             rdbAdmin.showErrorMessage('<pre>' + err[0] + ':' + err[1] + '</pre>');

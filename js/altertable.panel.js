@@ -584,7 +584,7 @@ function AlterTablePanel(rdbAdmin, databaseManager, sqlPanel, receditPanel) {
         function queryColumn(fname, ftype, flen, farray, fnull, fdefault) {
 
             var colParts = ['   '];
-            colParts.push(fname);
+            colParts.push(quoteIdentifier(fname));
             var typ = ftype;
             if (flen) {
                 typ += '(' + flen + ')';

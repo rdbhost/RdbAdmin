@@ -11,8 +11,8 @@
   <style type="text/css" id="usercss">@import url("css/rdbhost.css");</style>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"> </script>
-  <script type="text/javascript" src="https://www.rdbhost.com/js/underscore-min.js"> </script>
-  <script type="text/javascript" src="https://www.rdbhost.com/js/underscore.string.min.js"> </script>
+  <script type="text/javascript" src="https://www.rdbhost.com/vendor/underscore/underscore-min.js"> </script>
+  <script type="text/javascript" src="https://www.rdbhost.com/vendor/underscore/underscore.string.min.js"> </script>
   <script type="text/javascript" src="sammy/sammy.js" charset="utf-8"> </script>
   <script type="text/javascript" src="https://www.rdbhost.com/vendor/easyxdm/easyXDM.debug.js"></script>
   <script type="text/javascript" src="https://www.rdbhost.com/vendor/rdbhost/1.2/jquery.rdbhost.js"> </script>
@@ -599,6 +599,9 @@
             <input type="hidden" value="" id="cap-oldSchemaName" />
             <input type="hidden" value="" id="cap-oldTableName" />
             <input type="hidden" value="" id="alter-table-all-fields" /></p>
+
+          <h5>RdbHost recommends lowercasing all names to avoid issues with case-folding by the database.</h5>
+
           <table cellspacing="0" cellpadding="2" border="0" id="alter-table-details"
                  summary="alter table details">
             <thead>
@@ -916,6 +919,8 @@
                   <option>IN</option>
                   <option>OUT</option>
                   <option>INOUT</option>
+                  <option>VARIADIC</option>
+                  <option>TABLE</option>
                 </select></td>
                 <td><select id="function-ftype_" name="function-ftype_">
                   <option>varchar</option>
